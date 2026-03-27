@@ -1,3 +1,4 @@
+let goodbye;
 let jsonData;
 let countryYearGini = {};
 let countryNames = [];
