@@ -34,7 +34,7 @@ class Country {
     this.currentParties = this.currentParties.filter((p) =>
       ps.some((pd) => pd.partyname === p.data.partyname),
     );
-    console.log("currentParties", this.currentParties);
+    //console.log("currentParties", this.currentParties);
 
     // brauchen wir um später abzufragen ob das Land rechts oder links ist
     const isRight = this.side === "right";
@@ -52,11 +52,11 @@ class Country {
       const y = map(
         this.election.parties[i].absseat,
         0,
-        this.election.parties[i].totseats/1.5,
+        this.election.parties[i].totseats/6*4,
         windowHeight - 30,
         0,
       ); //jetzt mapped mer d ahzahl sitz pro partei vo 0 zu de mehrheit im Parlament. Sprich wenn en Partei d mehrheit het, isch sie obe
-      console.log(this.currentParties)
+      //console.log(this.currentParties)
       const existing = this.currentParties.find(
         (p) => p.data.partyname === pd.partyname,
       );
@@ -69,7 +69,6 @@ class Country {
         let p = new Party(pd, x, y, color);
         p.side = this.side;
         this.currentParties.push(p);
-        //this.currentParties.push(new Party(pd, x, y, color));
       }
     });
   }
@@ -106,6 +105,7 @@ class Country {
     text(this.name, labelX, 20);
     text(this.election.year, labelX, 40);
     text(this.election.parties.length, labelX, 60);
+    
 
     for (let iter = 0; iter < 5; iter++) {
       this.updateCountryParties();
