@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sketch Controller</title>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.19/dist/lil-gui.umd.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+      .lil-gui {
+        --width: 600px;
+        --widget-height: 40px;
+        --spacing: 12px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const DATA_URL = "data/EuropaCMP.json";
+
+      const params = {
+        server: "http://localhost:8080",
+        status: "⬤ disconnected",
+        country: "Sweden",
+        country2: "Switzerland",
+        year: 1960,
+        forceDivide: 22.3,
+      };
+
+      let socket;
+      let statusController;
+
+      function setStatus(msg) {
+        params.status = msg;
+        statusController?.updateDisplay();
+      }
+
+      function connect() {
+        if (socket) socket.disconnect();
+        setStatus("⬤ connecting…");
+        socket = io(params.server, { transports: ["websocket"] });
+        socket.on("connect", () => setStatus("⬤ connected"));
+        socket.on("disconnect", () => setStatus("⬤ disconnected"));
+        socket.on("connect_error", () => setStatus("⬤ error"));
+      }
+
+      async function buildGUI() {
+        const res = await fetch(DATA_URL);
+        const data = await res.json();
+        const countryNames = Object.keys(data).sort();
+
+        const gui = new lil.GUI({ title: "Sketch Controller" });
+        gui.add(params, "server").name("Server URL").onFinishChange(connect);
+        statusController = gui.add(params, "status").name("").disable();
+        gui.add(params, "country", countryNames).onChange((v) => socket?.emit("country", v));
+        gui.add(params, "country2", countryNames).onChange((v) => socket?.emit("country2", v));
+        gui.add(params, "year", 1960, 2024, 1).onChange((v) => socket?.emit("year", v));
+        gui.add(params, "forceDivide", 0, 50, 0.1).onChange((v) => socket?.emit("forceDivide", v));
+      }
+
+      buildGUI();
+      connect();
+    </script>
+  </body>
+</html>

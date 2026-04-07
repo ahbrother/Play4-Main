@@ -20,6 +20,9 @@ let familycolors={
 
 
 
+let pg;
+
+
 let countries = [];
 let selectedCountry;
 let selectedCountry2;
@@ -31,6 +34,9 @@ const params = {
 };
 gui = new lil.GUI();
 
+
+const SERVER_URL = "http://localhost:8080"; // ← swap to your Render URL for production
+
 function preload() {
   loadJSON("data/EuropaCMP.json", (d) => {
     countries = Object.entries(d).map(([name, data]) => new Country(name, data));
@@ -40,9 +46,9 @@ function preload() {
 }
 
 function setup() {
-//1920 * 2, 1080 * 2
-3820, 2160
-  createCanvas(windowWidth, windowHeight);
+//1920 * 2, 1080 * 2 : 3820, 2160
+  createCanvas(1920,1080);
+  pg=createGraphics(width,height)
   //angleMode(DEGREES);
   gui
     .add(
@@ -50,116 +56,98 @@ function setup() {
       "country",
       countries.map((c) => c.name)
     )
-    .onChange((v) => {
-      selectedCountry = countries.find((c) => c.name === v);
-      selectedCountry.side = "left";
-      selectedCountry.setPosition(createVector(width / 4, height / 2));
+    .onChange(setCountry);
+    
 
-      selectedCountry.setYear(params.year); // ← re-place parties at correct position
-      //BIP
-      updateCurrentValues();
-
-    });
-
-    gui.add(
-      params,
-      "country2", 
-      countries.map((c) => c.name),)
-
-    .onChange((v) => {
-      selectedCountry2 = countries.find((c) => c.name === v);
-      selectedCountry2.side = "right";
-      selectedCountry2.setPosition(createVector((width / 4)*3, height / 2));
-
-      selectedCountry2.setYear(params.year);
-
-      updateCurrentValues();
-    })
-
-
-  gui.add(params, "year", 1960, 2024, 1).onChange((v) => {
-    selectedCountry?.setYear(v);
-    selectedCountry2?.setYear(v);
-    selectedCountry?.setPosition(createVector(width / 4, height / 2));
-    selectedCountry2?.setPosition(createVector((width/4)*3, height/2));
-
-    updateCurrentValues();
-
-
-
-
-// JULIA
-  buildYearGiniData();
-
-  // setup fürs GUI
-  // if (countryNames.length > 0) {
-  //   params.country = countryNames[0];
-  //   params.country2 = countryNames.length > 1 ? countryNames[1] : countryNames[0];
-  //   const availableYears = getAvailableYearsForSelection();
-  //   params.year = availableYears.length > 0 ? availableYears[0] : null;
-  //   updateCurrentValues();
-
-  //   // new GUI mit lil-gui erstellen und die einstellungsoptionen für land und jahr hinzufügen
-  //   gui = new lil.GUI();
-  //   gui
-  //     .add(params, 'country', countryNames)
-  //     .onChange(() => {
-  //       updateCurrentValues();
-  //     });
-  //   // wenn sich das land ändert, müssen auch die verfügbaren jahre aktualisiert werden (nur provisorisch, können wir noch ändern)
-  //   gui
-  //     .add(params, 'country2', countryNames)
-  //     .onChange(() => {
-  //       refreshYearController();
-  //       updateCurrentValues();
-  //     });
-
-  //   yearController = gui
-  //     .add(
-  //       params,
-  //       'year',
-  //       // holt die verfügbaren jahre für das aktuell ausgewählte land, um sie als optionen für den jahr-regler zu verwenden
-  //       availableYears.length > 0 ? availableYears[0] : 0,
-  //       availableYears.length > 0 ? availableYears[availableYears.length - 1] : 0,
-  //       1,
-  //     )
-  //     .onChange(() => {
-  //       snapToAvailableYear(params.year);
-  //       yearController.updateDisplay();
-  //       updateCurrentValues();
-  //     });
-  // }
-
-  });
+  gui.add(params, "year", 1960, 2024, 1).onChange(setYear);
 
   // set initial country and year
   selectedCountry = countries.find((c) => c.name === params.country);
   selectedCountry.side = "left";
-  selectedCountry.setPosition(createVector(width / 4, height / 2));
+  selectedCountry.setPosition(createVector(width / 2, height / 2));
 
-  selectedCountry2 = countries.find((c) => c.name === params.country2);
-  selectedCountry2.side = "right";
-  selectedCountry2.setPosition(createVector((width / 4)*3, height / 2));
+  // selectedCountry2 = countries.find((c) => c.name === params.country2);
+  // selectedCountry2.side = "right";
+  // selectedCountry2.setPosition(createVector((width / 4)*3, height / 2));
 
   selectedCountry.setYear(params.year);
-  selectedCountry2.setYear(params.year);
+  //selectedCountry2.setYear(params.year);
 const folder = gui.addFolder( 'Forces' );
 folder.add(params,"forceDivide",0,50,0.1);
 
 console.log("LINKERBIP:",currentBipLeft)
+
+
+  // Socket
+  connectGUI();
 }
 
 function draw() {
-  background(10);
-  stroke("#ff0000");
-  //line(width/2,0,width/2,height);
+  //background(10);
+  //für den Trail, damit man die entwicklung sieht
+  fill(30, 30, 30, 10); // letzter Wert = Geschwindigkeit des Verblassens
   noStroke();
+  rect(0, 0, width, height);
 
-  drawCountryPanel(0, width / 2, params.country, currentGiniLeft, currentBipLeft);
-  drawCountryPanel(width / 2, width, params.country2, currentGiniRight, currentBipRight);
+
+  // drawCountryPanel(0, width / 2, params.country, currentGiniLeft, currentBipLeft);
+  // drawCountryPanel(width / 2, width, params.country2, currentGiniRight, currentBipRight);
 
 
   selectedCountry?.render();
-  selectedCountry2?.render();
+  //selectedCountry2?.render();
+
+//   pg.fill(30, 30, 30, 3)
+//   pg.rect(0, 0, width, height);
+//     pg.fill(255, 30, 30, 100)
+
+// pg.ellipse(mouseX,mouseY,100)
+
+ // image(pg,0,0,width,height)
 
 }
+
+
+function connectGUI() {
+  const socket = io(SERVER_URL, { transports: ["websocket"] });
+
+  socket.on("connect", () => console.log("[GUI] connected:", socket.id));
+  socket.on("disconnect", () => console.warn("[GUI] disconnected — will auto-reconnect"));
+
+  socket.on("country", setCountry);
+  socket.on("country2", setCountry2);
+  socket.on("year", setYear);
+  socket.on("forceDivide", (v) => {
+    params.forceDivide = v;
+  });
+}
+
+
+function setCountry(v) {
+  params.country = v;
+  selectedCountry = countries.find((c) => c.name === v);
+  selectedCountry.side = "left";
+  selectedCountry.setPosition(createVector(width / 4, height / 2));
+  selectedCountry.setYear(params.year);
+  updateCurrentValues();
+}
+
+function setCountry2(v) {
+  params.country2 = v;
+  selectedCountry2 = countries.find((c) => c.name === v);
+  selectedCountry2.side = "right";
+  selectedCountry2.setPosition(createVector((width / 4) * 3, height / 2));
+  selectedCountry2.setYear(params.year);
+  updateCurrentValues();
+}
+
+function setYear(v) {
+  params.year = v;
+  selectedCountry?.setYear(v);
+  selectedCountry2?.setYear(v);
+  selectedCountry?.setPosition(createVector(width / 4, height / 2));
+  selectedCountry2?.setPosition(createVector((width / 4) * 3, height / 2));
+  updateCurrentValues();
+  buildYearGiniData();
+}
+

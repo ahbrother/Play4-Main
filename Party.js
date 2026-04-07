@@ -43,12 +43,12 @@ class Party {
   }
 
   update() {
-    // update some vars like pos easing or what ever…
+    // update the position. ensures, here we can edit how smooth the movement is
     if (this.attractor) {
       let force = p5.Vector.sub(this.attractor, this.pos);
       //let mappedForce = map(this.seats.length, 1, 200, 20, 900)
       //force.div(mappedForce);
-      force.div(5);
+      force.div(10);
       this.vel.add(force);
     }
 
@@ -60,37 +60,41 @@ class Party {
     // Seats zum Partei-Zentrum anziehen
     for (const seat of this.seats) {
       let force = p5.Vector.sub(this.pos, seat.pos);
-      force.div(params.forceDivide); // oder force.limit(x)
-      //force.limit(2);
 
-      // let dist=force.mag()
-      // if(dist<30){
-      //   force.limit(1)
-      // }
+      let distForce = force.mag();
+      let strength = map(distForce, 0,200,0.001, 0.03);
+      force.setMag(strength * distForce);
+      //force.div(params.forceDivide); // oder force.limit(x)
+   
+      let groupForce = p5.Vector.sub(this.pos, seat.pos);
+      groupForce.setMag(3.5); //fixxe geschwindigkeit der ganzen Partei zum Zielort
 
       seat.vel.add(force);
-      seat.vel.mult(0.5); // seat.vel.limit(maxspeed)
-      //seat.vel.limit(2);
+      seat.vel.add(groupForce);
+      seat.vel.mult(0.3); // seat.vel.limit(maxspeed)
+      // seat.vel.limit(1.5);
       seat.pos.add(seat.vel);
 
 
       const xMin = 0;
-      const xMax = windowWidth / 2;
+      const xMax = width;  
       seat.pos.x = constrain(seat.pos.x, xMin, xMax);
-      seat.pos.y = constrain(seat.pos.y, 0, windowHeight);
+      seat.pos.y = constrain(seat.pos.y, 0, height);
     }
 
     // Kollisionserkennung. vergleicht jedes Seat-Paar einmal miteinander
+    // map(this.seats.length, 10, 200, 1.0, 0.25)
     for (let i = 0; i < this.seats.length; i++) {
       //j = i + 1 verhindert, dass etwas doppelt verglichen wird
       for (let j = i + 1; j < this.seats.length; j++) {
         let a = this.seats[i];
         let b = this.seats[j];
 
+    
         //abstand zwischen den beiden Sitzen
         let d = dist(a.pos.x, a.pos.y, b.pos.x, b.pos.y);
         //mindest abstand
-        let minDist = 19;
+        let minDist = map(this.seats.length, 1, 200, 20,40);
         //überlappen sie sich?
         if (d < minDist && d > 0) {
           //teilt es auf beide auf
@@ -99,6 +103,11 @@ class Party {
           let dir = p5.Vector.sub(a.pos, b.pos);
           //Vektoren auf Overlaplänge setzen
           dir.setMag(overlap);
+
+          let pushStrength = map(this.seats.length, 1, 200, 1.0, 0.25);
+        pushStrength = constrain(pushStrength, 0.25, 1.0);
+        dir.mult(pushStrength);
+          dir.limit(3.5)
           // a und b wegstossen
           a.pos.add(dir);
           b.pos.sub(dir);
@@ -115,15 +124,16 @@ class Party {
   render() {
     color = familycolors[this.data.parfam];
     push();
-    const isRight = this.side === "right";
-    if (isRight) {
-      translate(windowWidth / 2, 0);
-    }
+    // const isRight = this.side === "right";
+    // if (isRight) {
+    //   translate(windowWidth / 2, 0);
+    // }
 
     /* *********************
     Hier müssen wir sicherstellen dass sich die einzelnen Parteipositionen nicht überlappen, sondern aneinander vorbeigehen!!!
     */
     for (const seat of this.seats) {
+      
       fill(color);
       stroke(0);
       rect(seat.pos.x, seat.pos.y, 30, 15);

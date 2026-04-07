@@ -44,7 +44,7 @@ class Country {
       const x = map(
         this.election.parties[i].rile,
         -100,
-        100,0,windowWidth/2
+        100,0,width
        // isRight ? windowWidth / 2 : 0,
        // isRight ? windowWidth : windowWidth / 2,
       ); //this already places the rects according to the rile scale. ist eine doppelfunktion: wenn das land links ist, dann wird es von 0 bis mitte gemappt (1. Fall), wenn es recht ist, wird es von der mitte bis ans ende gemappt(2. Fall)
