@@ -35,7 +35,11 @@ const params = {
 gui = new lil.GUI();
 
 
-const SERVER_URL = "http://localhost:8080"; // ← swap to your Render URL for production
+//const SERVER_URL = "http://localhost:8080"; // ← swap to your Render URL for production
+
+  const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const SERVER_URL = isLocal ? "http://localhost:8080" : window.location.origin;
+
 
 function preload() {
   loadJSON("data/EuropaCMP.json", (d) => {
@@ -109,7 +113,10 @@ function draw() {
 
 
 function connectGUI() {
-  const socket = io(SERVER_URL, { transports: ["websocket"] });
+//  const socket = io(SERVER_URL, { transports: ["websocket"] });
+
+    const socket = io(SERVER_URL);
+
 
   socket.on("connect", () => console.log("[GUI] connected:", socket.id));
   socket.on("disconnect", () => console.warn("[GUI] disconnected — will auto-reconnect"));
