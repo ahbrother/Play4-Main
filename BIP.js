@@ -1,354 +1,343 @@
-// let jsonData;
-// let countryYearGini = {};
-// let countryYearBip = {};
-// let countryNames = [];
-// let gui;
-// let yearController;
-// let currentGiniRight = 30;
-// let currentBipRight = 0;
-// let currentGiniLeft = 30;
-// let currentBipLeft = 0;
-// let maxBipEurope = 1;
-// //bitmap effekt
-// let bitmapDitherStrength = 22;
-
-// const bayer4 = [
-//   [0, 8, 2, 10],
-//   [12, 4, 14, 6],
-//   [3, 11, 1, 9],
-//   [15, 7, 13, 5],
-// ];
+let dataset;
+let minYear = 1960;
+let maxYear = 2024;
+let dataYears = [];
+let windowWidth = 1200;
+let minBIP = 0;
+let maxBIP = 0;
+let countrySelect;
+let selectedCountryName = "";
+let countryLookup = new Map();
+let yearSlider;
+let selectedYear = 1960;
 
 
+//eine art css für die abstände im zeitstrahl
+const CATEGORY_COUNT = 4;
+const BIP_AXIS_MIN = 0;
+const BIP_AXIS_MAX = 150000;
+const CHART_OBENUNTEN_MARGIN = 25;
+const CHART_LINKSRECHTS_MARGIN = 120;
+//vier länder davor hell anzeigen, danach dunkel ausfaden
+const FOCUS_WINDOW_BEFORE = 10;
+//kein land danach hell anzeigen
+const FOCUS_WINDOW_AFTER = 0;
+const FOCUS_FADE_MAX_ALPHA = 255;
 
-// // //lädt die json-daten und baut die datenstruktur für die gini-werte pro land und jahr auf
-// // function preload() {
-// //   jsonData = loadJSON(
-// //     "data/gini_bip_structured.json",
-// //     () => console.log('geladen'),
-// //   );
-// // }
 
-// // // wenn ich die auslogge verschwindet julias viz. smh sind d visualisierige bim bip glaubs siiteverchert
-// // let params = {
-// //     country: "Sweden",
-// //     country2:"Switzerland",
-// //     year: 1960,
- 
-// // };
 
-// //string hash, um wolken zu generien
-// function hashString(value) {
-//   //216136261 ist eine grosse primzahl, die oft in hash-funktionen verwendet wird (im internet gefunden lol)
-//   //die funktion berechnet einen hash-wert für den eingegebenen string, der dann verwendet wird, um die wolkenposition und -textur zu bestimmen
-//   let hash = 2166136261;
-//   for (let i = 0; i < value.length; i++) {
-//     hash = value.charCodeAt(i);
-//     hash = Math.imul(hash, 16777619);
-//   }
-//   return hash >>> 0;
-// }
+//berechnet die min/max jahre und bip-werte aus dem datensatz
+function calculateDataRanges() {
+  if (!dataset || !Array.isArray(dataset.countries)) {
+    return;
+  }
 
-// //generiert wolkenparameter der auf länder/jahr basiert
-// function getCloudSeedForSelection(country, year) {
-// //const key erstellt einen string für die kombination aus land und jahr
-// //${country} und ${year} sind platzhalter, die durch die tatsächlichen werte ersetzt werden
-//   const key = `${country}-${year}`;
-//   const h1 = hashString(`${key}-x`);
-//   const h2 = hashString(`${key}-y`);
-//   const h3 = hashString(`${key}-z`);
+  //lokale variablen, um die min/max werte zu berechnen
+  //Infinity und -Infinity als startwerte
+  //damit jede gültige zahl diese überschreibt
+  let localYearMin = Infinity;
+  let localYearMax = -Infinity;
+  let localBIPMin = Infinity;
+  let localBIPMax = -Infinity;
+  const yearsSet = new Set();
 
-// //mappt die hash-werte auf bereiche für die wolkenparameter
-// //offset kann von -10000 bis 10000 gehen, um die wolken über die leinwand zu verschieben
-//   return {
-//     cloudOffsetX: map(h1, 0, 4294967295, -10000, 10000),
-//     cloudOffsetY: map(h2, 0, 4294967295, -10000, 10000),
-//     cloudSeedZ: map(h3, 0, 4294967295, 0, 1000),
-//   };
-// }
+  //durchlaufen alle länder im datensatz
+  for (const country of dataset.countries) {
+    if (!country.values || !Array.isArray(country.values)) {
+      continue;
+    }
 
-// // es wird immer das verfügbare jahr ausgewählt, das am nächsten zum eingegebenen wert liegt
-// function snapToAvailableYear(value) {
-//   const availableYears = getAvailableYearsForSelection();
-//   //wenn kein gültiges jahr verfügbar ist, wird der parameter auf null gesetzt
-//   if (availableYears.length === 0) {
-//     params.year = null;
+    //durchlaufen alle datenpunkte eines landes
+    //prüfen die jahreszahlen und bip-werte auf gültigkeit
+    for (const entry of country.values) {
+      const year = Number(entry.Year);
+      const bip = Number(entry.BIP);
+
+      //jahreszahlen können auch null oder keine zahl sein
+      //nur gültige jahreszahlen berücksichtigen
+      if (Number.isFinite(year)) {
+        localYearMin = min(localYearMin, year);
+        localYearMax = max(localYearMax, year);
+        yearsSet.add(floor(year));
+      }
+
+      //bip-werte können auch null oder keine zahl sein
+      //nur gültige bip-werte berücksichtigen
+      if (Number.isFinite(bip)) {
+        localBIPMin = min(localBIPMin, bip);
+        localBIPMax = max(localBIPMax, bip);
+      }
+    }
+  }
+
+  //wenn güötige jahreszahlen gefunden werden, dann werden sie als min/max jahre gesetzt
+  if (Number.isFinite(localYearMin) && Number.isFinite(localYearMax)) {
+    minYear = floor(localYearMin);
+    maxYear = ceil(localYearMax);
+  }
+
+  //wenn gültige bip-werte gefunden werden, dann werden sie als min/max bip gesetzt
+  if (Number.isFinite(localBIPMin) && Number.isFinite(localBIPMax)) {
+    minBIP = localBIPMin;
+    maxBIP = localBIPMax;
+  }
+
+  dataYears = Array.from(yearsSet).sort((a, b) => a - b);
+  selectedYear = minYear;
+ //erstellt eine sortiere liste der länder
+  const sortedCountries = [...dataset.countries]
+    .filter((country) => typeof country.country === "string")
+    //sortiert nach ländernamen (alphabetisch)
+    .sort((a, b) => a.country.localeCompare(b.country));
+
+    //erstellt eine map
+  countryLookup = new Map();
+  for (const country of sortedCountries) {
+    countryLookup.set(country.country, country);
+  }
+
+  if (sortedCountries.length > 0) {
+    selectedCountryName = sortedCountries[0].country;
+  }
+}
+
+function createCountryGui() {
+  countrySelect = createSelect();
+  countrySelect.position(20, 20);
+  countrySelect.style("width", "280px");
+
+  for (const countryName of countryLookup.keys()) {
+    countrySelect.option(countryName);
+  }
+
+  if (selectedCountryName) {
+    countrySelect.value(selectedCountryName);
+  }
+
+  countrySelect.changed(() => {
+    selectedCountryName = countrySelect.value();
+    redraw();
+  });
+}
+
+function createYearGui() {
+  yearSlider = createSlider(minYear, maxYear, selectedYear, 1);
+  yearSlider.position(20, 52);
+  yearSlider.style("width", "280px");
+  yearSlider.input(() => {
+    selectedYear = Number(yearSlider.value());
+    redraw();
+  });
+}
+
+function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
+  stroke(255);
+  strokeWeight(1);
+  line(xStart, yTop, xStart, yBottom);
+
+  for (let i = 0; i < CATEGORY_COUNT; i++) {
+    const t = i / (CATEGORY_COUNT - 1);
+    const y = lerp(yBottom, yTop, t);
+    const categoryValue = lerp(BIP_AXIS_MIN, BIP_AXIS_MAX, t);
+
+    stroke(255);
+    strokeWeight(1);
+    line(xStart, y, xEnd, y);
+
+    stroke(255);
+    strokeWeight(1);
+    line(xStart, y, xStart + 7, y);
+
+    noStroke();
+    fill(255);
+    textAlign(RIGHT, CENTER);
+    textSize(12);
+    text(formatBIPValue(categoryValue), xStart - 12, y);
+  }
+
+  noStroke();
+  fill(30);
+  textAlign(CENTER, CENTER);
+  textSize(12);
+}
+
+//zeichnet die vertikalen linien für die jahreszahlen
+function drawTimeline(xStart, xEnd, yTop, yBottom) {
+  stroke(255);
+  strokeWeight(0.5);
+  line(xStart, yBottom, xEnd, yBottom);
+
+  if (dataYears.length === 0) {
+    return;
+  }
+
+  //verteilt die jahreszahlen gleichmässig über die breite des diagramms
+  for (let i = 0; i < dataYears.length; i++) {
+    const x = dataYears.length === 1
+      ? (xStart + xEnd) / 2
+      : map(i, 0, dataYears.length - 1, xStart, xEnd);
+
+    stroke(255);
+    strokeWeight(1);
+    line(x, yTop, x, yBottom);
+
+    stroke(255);
+    strokeWeight(1);
+    line(x, yBottom - 9, x, yBottom);
+  }
+}
+
+//zeichnet die datenpunkte eines landes als linie und sehr kleine punkte
+function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
+  if (!selectedCountryName || !countryLookup.has(selectedCountryName)) {
+    return;
+  }
+
+  //holt die daten für das ausgewählte land
+  const country = countryLookup.get(selectedCountryName);
+  if (!country || !Array.isArray(country.values)) {
+    return;
+  }
+  //filtert ungültige datenpunkte heraus und sortiert sie nach jahr
+  const validValues = country.values
+  .map((entry) => ({
+    year: Number(entry.Year),
+    bip: Number(entry.BIP),
+  }))
+  .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip) && entry.year <= selectedYear) // ← nur bis selectedYear
+  .sort((a, b) => a.year - b.year);
+//   const validValues = country.values
+//     .map((entry) => ({
+//       year: Number(entry.Year),
+//       bip: Number(entry.BIP),
+//     }))
+//     .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip))
+//     .sort((a, b) => a.year - b.year);
+
+//   if (validValues.length === 0) {
 //     return;
 //   }
-  
-// // prüft, ob der eingegebene wert eine gültige zahl ist
-//   const target = Number(value);
-//   if (!Number.isFinite(target)) {
-//     params.year = availableYears[0];
-//     return;
-//   }
 
-//   // findet das jahr, das am nächsten zum eingegebenen wert liegt
-//   let closestYear = availableYears[0];
-//   let minDiff = Math.abs(target - closestYear);
+  const windowStartYear = selectedYear - FOCUS_WINDOW_BEFORE;
+  const windowEndYear = selectedYear + FOCUS_WINDOW_AFTER;
 
-//   //berechnet die differenz zwischen dem eingegebenen wert und jedem verfügbaren jahr, um das nächste jahr zu finden
-//   for (const year of availableYears) {
-//     const diff = Math.abs(target - year);
-//     if (diff < minDiff) {
-//       minDiff = diff;
-//       closestYear = year;
-//     }
-//   }
+  //zeichnet die linien zwischen den datenpunkten
+  //die linien sind etwas dicker und weiss, damit sie sich von den punkten abheben
+  stroke(0);
+  strokeWeight(1.5);
+  //linien waren rund, so sind die eckiger wie im figma entwurf
+  strokeJoin(MITER);
+  strokeCap(SQUARE);
+  for (let i = 0; i < validValues.length - 1; i++) {
+    const current = validValues[i];
+    const next = validValues[i + 1];
+    const currentX = map(current.year, minYear, maxYear, xStart, xEnd, true);
+    const currentY = map(current.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+    const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
+    const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+    const midYear = (current.year + next.year) * 0.5;
+    const alpha = getLineChartAlpha(midYear, windowStartYear, windowEndYear);
 
-//   //aktualisiert den parameter mit dem nächsten verfügbaren jahr
-//   params.year = closestYear;
-// }
+    strokeWeight(6);
+    stroke(255, alpha);
+    line(currentX, currentY, nextX, nextY);
+  }
 
+  noStroke();
+  fill(0);
 
-// //holt die gini- und bip-werte für ein bestimmtes land und jahr, mit standardwerten, falls keine daten vorhanden sind
-// function getCountryValues(country, year) {
-//   const countryGiniData = countryYearGini[country] || {};
-//   const countryBipData = countryYearBip[country] || {};
-//   console.log("BIPCOUNTRY:",country, countryBipData)
-//     console.log("GINICOUNTRY:",country, countryGiniData)
-//   return {
-//     gini: countryGiniData[year] || 30,
-//     bip: countryBipData[year] || 0,
-//   };
-// }
+  //zeichnet die datenpunkte als kleine kreise
+  for (const entry of validValues) {
+    const x = map(entry.year, minYear, maxYear, xStart, xEnd, true);
+    const y = map(entry.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+    const alpha = getLineChartAlpha(entry.year, windowStartYear, windowEndYear);
+    //kreise sind weiss, wie die linie
+    fill(255, alpha);
+    circle(x, y, 1);
+  }
+}
 
-// // aktualisiert die aktuellen gini/bip-werte für beide länder
-// //
-// function updateCurrentValues() {
-//   const leftValues = getCountryValues(params.country, params.year);
-//   const rightValues = getCountryValues(params.country2, params.year);
+function getLineChartAlpha(year, windowStartYear, windowEndYear) {
+  if (year >= windowStartYear && year <= windowEndYear) {
+    return 255;
+  }
 
-//   currentGiniRight = rightValues.gini;
-//   currentBipRight = rightValues.bip;
-//   currentGiniLeft = leftValues.gini;
-//   currentBipLeft = leftValues.bip;
-// }
+  let distanceYears = 0;
+  if (year < windowStartYear) {
+    distanceYears = windowStartYear - year;
+  } else {
+    distanceYears = year - windowEndYear;
+  }
 
-// // berechnet gini-werte pro land und jahr
-// function buildYearGiniData() {
-//   // prüft, ob die datenstruktur wie erwartet ist
-//   if (!jsonData || !Array.isArray(jsonData.countries)) {
-//     countryYearGini = {};
-//     countryYearBip = {};
-//     countryNames = [];
-//     maxBipEurope = 1;
-//     return;
-//   }
+  const t = constrain(distanceYears / max(1, FOCUS_WINDOW_BEFORE), 0, 1);
+  return lerp(255, 0, t);
+}
 
-//   //initialisiert die datenstrukturen für gini und bip sowie die variable für das maximale bip
-//   maxBipEurope = 0;
+//fade effekt von copilot empfohlen so zu schreiben
+function drawFocusFadeOverlay(xStart, xEnd, yTop, yBottom) {
+  noStroke();
 
-//   // iteriert über die länder und extrahiert die gini-werte pro jahr
-//   // speichert die daten in einem objekt: countryYearGini[country][year] = gini
-//   for (const countryEntry of jsonData.countries) {
-//     const countryName = countryEntry.country;
-//     const values = Array.isArray(countryEntry.values) ? countryEntry.values : [];
-//     countryYearGini[countryName] = {};
-//     countryYearBip[countryName] = {};
+  //berechnet die jahreszahlen, die innerhalb und ausserhalb des fokusfensters liegen
+  const windowStartYear = selectedYear - FOCUS_WINDOW_BEFORE;
+  const windowEndYear = selectedYear + FOCUS_WINDOW_AFTER;
 
-//   // prüft auch, ob die werte gültige zahlen sind, bevor sie gespeichert werden
-//     for (const row of values) {
-//       const year = Number(row.Year);
-//       const gini = Number(row.Gini);
-//       const bip = Number(row.BIP);
+  //durchläuft alle pixel entlang der x-achse und berechnet die transparenz
+  //je weiter ein pixel von den grenzen des fokusfensters entfernt ist, desto dunkler wird er
+  for (let x = floor(xStart); x <= ceil(xEnd); x++) {
+    //hier wird die jahreszahl berechnet, die diesem pixel entspricht
+    const yearAtX = map(x, xStart, xEnd, minYear, maxYear, true);
+    let distanceYears = 0;
 
-//   // überspringt ungültige datenpunkte    
-//       if (!Number.isFinite(year) || !Number.isFinite(gini) || !Number.isFinite(bip)) {
-//         continue;
-//       }
+    //wenn die jahreszahl links vom fokusfenster lieg, wird die entfernung zum start berechnet
+    //ansonsten wird entfernung zum ende berechnet (rechts)
+    if (yearAtX < windowStartYear) {
+      distanceYears = windowStartYear - yearAtX;
+    } else if (yearAtX > windowEndYear) {
+      distanceYears = yearAtX - windowEndYear;
+    }
+    //hier wird die entfernung in jahreszahlen in einen wert zwischen 0 und 1 umgerechnet, der dann für die transparenz verwendet wird
+    //je weiter die jahreszahl von den grenzen des fokusfensters entfernt ist, desto näher ist t an 1, und desto höher ist die transparenz
+    const t = constrain(distanceYears / FOCUS_WINDOW_BEFORE, 0, 1);
+    const alpha = lerp(0, FOCUS_FADE_MAX_ALPHA, t);
+    fill(0, alpha);
+    rect(x, yTop, 1, yBottom - yTop);
+  }
+}
+//zeichnet die vertikale linie für das ausgewählte jahr
+function drawSelectedYearLine(xStart, xEnd, yTop, yBottom) {
+  const x = map(selectedYear, minYear, maxYear, xStart, xEnd, true);
+  //rote linie, damit sie sich von den anderen linien abhebt
+  stroke(220, 0, 0);
+  strokeWeight(3);
+  line(x, yTop, x, yBottom);
+}
 
-//   // speichert die gültigen gini- und bip-werte in den entsprechenden objekten
-//       countryYearGini[countryName][year] = gini;
-//       countryYearBip[countryName][year] = bip;
+function drawSelectedYearLabel(xStart, xEnd, yTop) {
+  const x = map(selectedYear, minYear, maxYear, xStart, xEnd, true);
 
-//       if (bip > maxBipEurope) {
-//         maxBipEurope = bip;
-//       }
-//     }
-//   }
+  noStroke();
+  //rote beschriftung für jahreszahl
+  fill(220, 0, 0);
+  textAlign(CENTER, BOTTOM);
+  textSize(34);
+  text(selectedYear, x, yTop - 8);
+}
 
-//   //stellt sicher, dass maxBipEurope einen sinnvollen wert hat, um division durch null zu vermeiden
-//   if (maxBipEurope <= 0) {
-//     maxBipEurope = 1;
-//   }
+//formatiert die bipwerte
+function formatBIPValue(value) {
+  const roundedToThousand = round(value / 1000) * 1000;
+  return nfc(roundedToThousand, 0);
+}
 
-//   //sortiert die ländernamen alphabetisch in der drop-down.liste
-//   countryNames = Object.keys(countryYearGini).sort((a, b) => a.localeCompare(b));
-// }
-
-// //holt die verfügbaren jahre für das aktuell ausgewählte land
-// //optionen können im regler für das jahr ausgewählt werden
-// function getAvailableYearsForSelection() {
-//   const countryData = countryYearGini[params.country] || {};
-//   return Object.keys(countryData)
-//     .map(Number)
-//     //sortiert die jahre aufsteigend
-//     .sort((a, b) => a - b);
-// }
-
-// // aktualisiert die einstellungsoptionen des jahr-reglers basierend auf den verfügbaren jahren
-// function refreshYearController() {
-//   if (!yearController) {
-//     return;
-//   }
-// // holt die verfügbaren jahre für das aktuell ausgewählte land
-//   const availableYears = getAvailableYearsForSelection();
-//   if (availableYears.length === 0) {
-//     return;
-//   }
-
-//   //wird auf ein verfügbares jahr gesetzt, falls das aktuell ausgewählte jahr nicht verfügbar ist
-//   snapToAvailableYear(params.year);
-
-//   // aktualisiert die min/max/step werte des jahr-reglers basierend auf den verfügbaren jahren
-//   yearController.min(availableYears[0]);
-//   yearController.max(availableYears[availableYears.length - 1]);
-//   yearController.step(1);
-//   yearController.updateDisplay();
-// }
-
-// // aktualisiert den aktuellen gini-index basierend auf dem ausgewählten jahr
-// function setup() {
-//   createCanvas(windowWidth, windowHeight);
-//   noSmooth();
-//   buildYearGiniData();
-
-
-//   // setup fürs GUI
-//   if (countryNames.length > 0) {
-//     params.country = countryNames[0];
-//     params.country2 = countryNames.length > 1 ? countryNames[1] : countryNames[0];
-//     const availableYears = getAvailableYearsForSelection();
-//     params.year = availableYears.length > 0 ? availableYears[0] : null;
-//     updateCurrentValues();
-
-//     // new GUI mit lil-gui erstellen und die einstellungsoptionen für land und jahr hinzufügen
-//     gui = new lil.GUI();
-//     gui
-//       .add(params, 'country', countryNames)
-//       .onChange(() => {
-//         updateCurrentValues();
-//       });
-//     // wenn sich das land ändert, müssen auch die verfügbaren jahre aktualisiert werden (nur provisorisch, können wir noch ändern)
-//     gui
-//       .add(params, 'country2', countryNames)
-//       .onChange(() => {
-//         refreshYearController();
-//         updateCurrentValues();
-//       });
-
-//     yearController = gui
-//       .add(
-//         params,
-//         'year',
-//         // holt die verfügbaren jahre für das aktuell ausgewählte land, um sie als optionen für den jahr-regler zu verwenden
-//         availableYears.length > 0 ? availableYears[0] : 0,
-//         availableYears.length > 0 ? availableYears[availableYears.length - 1] : 0,
-//         1,
-//       )
-//       .onChange(() => {
-//         snapToAvailableYear(params.year);
-//         yearController.updateDisplay();
-//         updateCurrentValues();
-//       });
-//   }
-// }
-
-// // zeichnet die visualisierung für ein land basierend auf dem gini-index und bip
-// // xStart und xEnd definieren den horizontalen bereich für das land, damit wir 2 länder nebeneinander darstellen können
-// // giniValue steuert die textur der quadrate, bipValue steuert die füllhöhe der quadrate
-// function drawCountryPanel(xStart, xEnd, country, giniValue, bipValue) {
-//   // gini-mix von 0 bis 1
-//   let giniColorMix = map(giniValue, 20, 60, 0, 1, true);
-//   // quadratgrösse bezogen auf halbe canvas-breite
-//   let panelWidth = xEnd - xStart;
-//   let w = panelWidth / 45;
-//   let rw = 30 / 100;
-//   let rh = 15;
-//   // skaliert die füllhöhe: unten 0, oben globales max-bip aus allen daten
-//   let fillHeight = map(bipValue, 0, maxBipEurope, 0, height, true);
-//   let fillTop = height - fillHeight;
-//   let seed = getCloudSeedForSelection(country, params.year);
-
-//   // clip?!
-//   drawingContext.save();
-//   drawingContext.beginPath();
-//   drawingContext.rect(xStart, 0, xEnd -xStart, height);
-//   drawingContext.clip();
-
-//   // zeichnet die quadrate basierend auf dem gini index
-//   //zeichnet von xStart bis xEnd und von fillTop bis height, damit die füllhöhe durch bip gesteuert wird
-//   //je höher der gini, desto dunkler die quadrate, die textur wird gröber
-//   for (let x = xStart; x < xEnd; x = x += w) {
-//     for (let y = fillTop; y < height; y = y += rh) {
-//       // wolkige textur: bei niedrigem gini fein, bei hohem gini gröber
-//       let cloudScale = lerp(0.018, 0.005, giniColorMix);
-//       let cloudNoise = noise((x + seed.cloudOffsetX) * cloudScale, (y + seed.cloudOffsetY) * cloudScale, seed.cloudSeedZ);
-//       let cloudShape = pow(cloudNoise, lerp(5.8, 1.2, giniColorMix));
-//       let textureAmount = lerp(0.06, 0.95, giniColorMix);
-//       let grayBase = lerp(250, 8, giniColorMix);
-//       // berechnet den grauwert aus basis + textur
-//       // je höher der gini, desto dunkler die quadrate, da die textur stärker ins gewicht fällt
-//       let gray = constrain(grayBase - cloudShape * 255 * textureAmount, 0, 255);
-//       let ix = floor((x - xStart) / w);
-//       let iy = floor(y / rh);
-//       // bayer ist eine form von dithering
-//       // iy % 4 und ix % 4 sorgt dafür, dass sich das muster alle 4 quadrate wiederholt
-//       // /15 weil die bayerwerte von 0-15 reichen
-//       let bayerValue = bayer4[iy % 4][ix % 4] / 15;
-//       let ditherOffset = (bayerValue - 0.5) * bitmapDitherStrength;
-//       let grayDithered = constrain(gray + ditherOffset, 0, 255);
-//       //FARBEN für die visualisierung!!!!!!!!!
-//       const whiteTone = 225;
-//       const blackTone = 30;
-//       // Gini steuert den Weiss/Schwarz-Anteil: niedrig fast nur Weiss, hoch deutlich mehr Schwarz
-//       let whiteThreshold = lerp(160, 245, giniColorMix);
-//       let grayBitmap = grayDithered > whiteThreshold ? whiteTone : blackTone;
-
-//       // bitmap-look mit 2 farben
-//       fill(grayBitmap);
-//       rect(x, y, w, rh);
-//     }
-//   }
-//   drawingContext.restore();
-//     noSmooth();
-// }
-// // visualisierung mit gini index: je höher der gini, desto dunkler die quadrate
-// function draw() {
-//   background("black");
-
-//   noStroke();
-//   // Julia hat linksrechtsschwäche!!
-//   // linkes land in linker hälfte
-//   drawCountryPanel(0, width / 2, params.country, currentGiniLeft, currentBipLeft);
-//   // rechtes land in rechter hälfte
-//   drawCountryPanel(width / 2, width, params.country2, currentGiniRight, currentBipRight);
-
-//   fill("white");
-//   textSize(14);
-//   textAlign(LEFT, TOP);
-//   textStyle(BOLD);
-//   textFont('Special Gothic');
-//   // was in den parametern steht
-//   // 20 und 28 sind die x und y koordinaten für die position des textes
-//   text(
-//     // backslash n für zeilenumbruch in p5.js
-//     'COUNTRY1: ' + params.country + '\n' +
-//     'JAHR: ' + params.year + '\n' +
-//      'GINI1: ' + nf(currentGiniLeft, 1, 1) + '\n' +
-//        'BIP1: ' + nf(currentBipLeft, 1, 0) + '\n' +
-//     'COUNTRY2: ' + params.country2 + '\n' +
-//     'JAHR: ' + params.year + '\n' +
-   
-//     'GINI2: ' + nf(currentGiniRight, 1, 1) + '\n' +
-  
-//     'BIP2: ' + nf(currentBipRight, 1, 0),20,28
-//   );
-// }
-
-// // passt die grösse der leinwand an
-// //muss man unten schreiben, damit die änderung auch klappt
+//wenn das fenster grösser oder kleiner wird, wird die grösse der canvas angepasst
 // function windowResized() {
-//   resizeCanvas(windowWidth, windowHeight);
+//   resizeCanvas(windowWidth*2, 420);
+//   if (countrySelect) {
+//     countrySelect.position(20, 20);
+//   }
+//   if (yearSlider) {
+//     yearSlider.position(30, 52);
+//   }
+//   redraw();
 // }
+

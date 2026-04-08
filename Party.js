@@ -183,7 +183,8 @@ setPosition(position) {
     for (const seat of this.seats) {
       
       g.fill(color);
-      g.stroke(0);
+      g.stroke(10,180);
+      g.strokeWeight(0.5);
       g.rect(seat.pos.x, seat.pos.y, 30, 15);
     }
   }

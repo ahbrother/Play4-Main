@@ -42,10 +42,7 @@ function preload() {
     countries = Object.entries(d).map(
       ([name, data]) => new Country(name, data),
     );
-    console.log("WTF", countries);
-    jsonData = loadJSON("data/gini_bip_structured.json", () =>
-      console.log("BIP geladen"),
-    );
+    dataset = loadJSON("data/gini_bip_structured.json");
   });
 }
 
@@ -81,35 +78,56 @@ function setup() {
 
   // Socket
   connectGUI();
+
+  // BIP
+  calculateDataRanges();
+  selectedCountryName = params.country;
+  selectedYear = params.year;
+  //createCountryGui();
+  //createYearGui();
 }
 
 function draw() {
+ 
 
 
-  // checken wie viel platz wir für das bip Brauchen. im Party.js pos.y constrain anpassen!!
-  //fill(255,0,0);
-  //rect(50,height-200, 20, 180);
-
-  pg.fill(30, 30, 30, 3);
+  pg.fill(0, 3);
   pg.noStroke();
-  pg.rect(0, 0, width, height-500);
+  pg.rect(0, 0, width, height - 500);
 
   selectedCountry?.render(pg);
   /******* Need to clear the background, whenever a different country is selected?! */
 
-  background(255);
+  background(0);
   image(pg, 0, 0, width, height);
+
+  // noStroke();
+  // fill(255);
+  // rect(0,height-500, width, 500)
 
   selectedCountry?.renderLabels();
 
-  // Jahreszahl, brauchts eigentlich nicht, weil die in Julias sketch bereits vorkommt 
-    // fill(255,0,0);
-    // textSize(40);
-    // text(params.year, width/2, height-460);
+  /***************************  BIP*****************/
+  noStroke();
+  fill(0);
+  rect(0, height - 400, width, 500);
+  const chartWidth = width - CHART_LINKSRECHTS_MARGIN * 2;
+  const chartLeft = (width - chartWidth) / 2;
+  const chartRight = chartLeft + chartWidth;
+  const chartBottom = height - CHART_OBENUNTEN_MARGIN;
+  const chartTop = chartBottom - 320; // ← fixe Höhe von 420px
 
-  // drawCountryPanel(0, width / 2, params.country, currentGiniLeft, currentBipLeft);
-  // drawCountryPanel(width / 2, width, params.country2, currentGiniRight, currentBipRight);
-  //selectedCountry2?.render();
+  drawBIPCategories(chartLeft, chartRight, chartTop, chartBottom);
+  drawTimeline(chartLeft, chartRight, chartTop, chartBottom);
+  drawCountryPoints(chartLeft, chartRight, chartTop, chartBottom);
+  drawSelectedYearLine(chartLeft, chartRight, chartTop, chartBottom);
+  drawSelectedYearLabel(chartLeft, chartRight, chartTop);
+
+   fill(255,0,0);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  text(params.country,40,20)
+
 }
 
 function connectGUI() {
@@ -131,24 +149,24 @@ function connectGUI() {
 }
 
 function setCountry(v) {
-  pg.background(0)
+  // should reset the trail when we choose a different country
+  pg.background(0);
+
   params.country = v;
   selectedCountry = countries.find((c) => c.name === v);
   selectedCountry.side = "left";
   selectedCountry.setPosition(createVector(width / 4, height / 2));
   selectedCountry.setYear(params.year);
-
-   // should reset the trail when we choose a different country
-
+  selectedCountryName = v;
 }
 
 function setYear(v) {
   params.year = v;
   selectedCountry?.setYear(v);
   selectedCountry2?.setYear(v);
+  selectedYear = v;
   // selectedCountry?.setPosition(createVector(width / 4, height / 2));
   // selectedCountry2?.setPosition(createVector((width / 4) * 3, height / 2));
-
 }
 
 function setCountry2(v) {
@@ -157,5 +175,4 @@ function setCountry2(v) {
   selectedCountry2.side = "right";
   selectedCountry2.setPosition(createVector((width / 4) * 3, height / 2));
   selectedCountry2.setYear(params.year);
-
 }

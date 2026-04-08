@@ -40,25 +40,10 @@ class Country {
     const isRight = this.side === "right";
     // update existing, add new
     ps.forEach((pd, i) => {
-      //const angle = (i / ps.length) * TWO_PI;
-      // const x = map(
-      //   this.election.parties[i].rile,
-      //   -100,
-      //   100,0,width
-      //  // isRight ? windowWidth / 2 : 0,
-      //  // isRight ? windowWidth : windowWidth / 2,
-      // ); //this already places the rects according to the rile scale. ist eine doppelfunktion: wenn das land links ist, dann wird es von 0 bis mitte gemappt (1. Fall), wenn es recht ist, wird es von der mitte bis ans ende gemappt(2. Fall)
 
       const x = map(pd.rile, -100, 100, 0, width);
-      const y = map(pd.absseat, 0, pd.totseats / 6 * 5, windowHeight-500,0);
-      // const y = map(
-      //   this.election.parties[i].absseat,
-      //   0,
-      //   this.election.parties[i].totseats/6*5,
-      //   windowHeight - 500,
-      //   0,
-      // ); //jetzt mapped mer d ahzahl sitz pro partei vo 0 zu de mehrheit im Parlament. Sprich wenn en Partei d mehrheit het, isch sie obe
-      //console.log(this.currentParties)
+      const y = map(pd.absseat, 0, pd.totseats / 6 * 5, windowHeight-400,0);
+      
       const existing = this.currentParties.find(
         (p) => p.data.partyname === pd.partyname,
       );
