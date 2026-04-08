@@ -9,8 +9,13 @@ class Party {
     // Seat-Partikel erstellen, damit jeder seat eine eigene Postion bekommt.
     this.seats = Array.from({ length: this.data.absseat }, () => ({
       pos: createVector(x + random(-20, 20), y + random(-20, 20)),
-      vel: createVector(random(-1, 1), random(-1, 1)),
+      vel: createVector(random(-1, 1), random(-1, 1)),  
     }));
+
+    this.labelPos = createVector(this.pos.x + random(0,10), this.pos.y - random(0,10)); // Startposition
+    this.labelVel = createVector(0, 0);
+    this.labelCenter = createVector(width/2, height/2);
+    this.labelAngle = -HALF_PI + random(-10, 10); // Einstellen wie fest die labels nach links und rechts dürfen
     //console.log("Sitze", this.seats)
   }
 
@@ -33,6 +38,50 @@ class Party {
       this.seats.splice(diff); // entfernt die letzten |diff| Sitze
     }
   }
+setPosition(position) {
+  this.pos.set(position); // nur pos updaten, Sitze in Ruhe lassen
+}
+
+  updateLabel(){
+  // 1. Schwerpunkt der Sitze berechnen
+  if (this.seats.length === 0){
+    return
+  } // sonst laufen wir dauernd in Warnmeldungen
+  
+  let center = createVector(0, 0);
+  for (const seat of this.seats) {
+    center.add(seat.pos);
+  }
+  center.div(this.seats.length);
+  this.labelCenter = center;
+
+  // 2. Anziehung zum Ankerpunkt (etwas ausserhalb des Schwerpunkts)
+  let canvasCenter = createVector(width/2, height/2);
+  //let dir = p5.Vector.add(center, canvasCenter);
+  let dir = p5.Vector.fromAngle(this.labelAngle);
+  //dir.normalize();
+  dir.mult(map(this.seats.length, 0, 200, 20,220)); //abstand vom mittelpunkt, evt mappen?
+
+  let anchor = p5.Vector.add(center,dir);
+
+  let attract = p5.Vector.sub(anchor, this.labelPos);
+  attract.mult(0.03);
+  this.labelVel.add(attract); 
+
+  // 3. Abstossung von jedem Sitz
+    let away = p5.Vector.sub(this.labelPos, center);
+    let d = away.mag();
+    away.normalize();
+    away.mult(100 / (d + 0.01))
+
+    this.labelVel.add(away);
+  
+
+  // 4. Dämpfung & Update
+  this.labelVel.mult(0.5);
+  this.labelPos.add(this.labelVel);
+  }
+
 
   updateData(data) {
     this.votes = data.votes;
@@ -79,7 +128,7 @@ class Party {
       const xMin = 0;
       const xMax = width;  
       seat.pos.x = constrain(seat.pos.x, xMin, xMax);
-      seat.pos.y = constrain(seat.pos.y, 0, height);
+      seat.pos.y = constrain(seat.pos.y, 0, height - 200);
     }
 
     // Kollisionserkennung. vergleicht jedes Seat-Paar einmal miteinander
@@ -121,29 +170,39 @@ class Party {
     this.attractor = createVector(x, y);
   }
 
-  render() {
+//g for graphics
+  render(g) {
     color = familycolors[this.data.parfam];
-    push();
+    //push();
     // const isRight = this.side === "right";
     // if (isRight) {
     //   translate(windowWidth / 2, 0);
     // }
 
-    /* *********************
-    Hier müssen wir sicherstellen dass sich die einzelnen Parteipositionen nicht überlappen, sondern aneinander vorbeigehen!!!
-    */
+
     for (const seat of this.seats) {
       
-      fill(color);
-      stroke(0);
-      rect(seat.pos.x, seat.pos.y, 30, 15);
+      g.fill(color);
+      g.stroke(0);
+      g.rect(seat.pos.x, seat.pos.y, 30, 15);
     }
+  }
+
+  renderLabels(){
+    this.updateLabel();
+
+    // linie vom Zentrum der Sitze zu dem Label
+    stroke(255,120);
+    strokeWeight(2);
+    noFill();
+    bezier(this.labelCenter.x - 10, this.labelCenter.y - 10,this.labelCenter.x, this.labelCenter.y, this.labelPos.x, this.labelPos.y+8, this.labelPos.x - 10, this.labelPos.y - 10)
 
     fill("#ffffff");
     textAlign(CENTER);
     textSize(15);
-    text(this.data.partyname, this.pos.x, this.pos.y);
-    pop();
+    noStroke();
+    text(this.data.partyname, this.labelPos.x, this.labelPos.y);
+
   }
 
   setAttractor(v) {

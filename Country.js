@@ -10,12 +10,12 @@ class Country {
     }));
     this.election = this.elections[0];
     this.currentParties = []; // ← add this
-    this._setElection(this.election.parties);
+   
   }
 
-  setPosition(position) {
-    this.pos.set(position);
-  }
+    setPosition(position) {
+      this.pos.set(position);
+    }
 
   setYear(year) {
     // Find closest year
@@ -41,21 +41,23 @@ class Country {
     // update existing, add new
     ps.forEach((pd, i) => {
       //const angle = (i / ps.length) * TWO_PI;
-      const x = map(
-        this.election.parties[i].rile,
-        -100,
-        100,0,width
-       // isRight ? windowWidth / 2 : 0,
-       // isRight ? windowWidth : windowWidth / 2,
-      ); //this already places the rects according to the rile scale. ist eine doppelfunktion: wenn das land links ist, dann wird es von 0 bis mitte gemappt (1. Fall), wenn es recht ist, wird es von der mitte bis ans ende gemappt(2. Fall)
+      // const x = map(
+      //   this.election.parties[i].rile,
+      //   -100,
+      //   100,0,width
+      //  // isRight ? windowWidth / 2 : 0,
+      //  // isRight ? windowWidth : windowWidth / 2,
+      // ); //this already places the rects according to the rile scale. ist eine doppelfunktion: wenn das land links ist, dann wird es von 0 bis mitte gemappt (1. Fall), wenn es recht ist, wird es von der mitte bis ans ende gemappt(2. Fall)
 
-      const y = map(
-        this.election.parties[i].absseat,
-        0,
-        this.election.parties[i].totseats/6*4,
-        windowHeight - 30,
-        0,
-      ); //jetzt mapped mer d ahzahl sitz pro partei vo 0 zu de mehrheit im Parlament. Sprich wenn en Partei d mehrheit het, isch sie obe
+      const x = map(pd.rile, -100, 100, 0, width);
+      const y = map(pd.absseat, 0, pd.totseats / 6 * 5, windowHeight-500,0);
+      // const y = map(
+      //   this.election.parties[i].absseat,
+      //   0,
+      //   this.election.parties[i].totseats/6*5,
+      //   windowHeight - 500,
+      //   0,
+      // ); //jetzt mapped mer d ahzahl sitz pro partei vo 0 zu de mehrheit im Parlament. Sprich wenn en Partei d mehrheit het, isch sie obe
       //console.log(this.currentParties)
       const existing = this.currentParties.find(
         (p) => p.data.partyname === pd.partyname,
@@ -66,6 +68,7 @@ class Country {
         existing.moveTo(x, y);
         existing.updateSeats(pd.absseat); //neu?!
       } else {
+        console.log("neue Partei bei:", x, y)
         let p = new Party(pd, x, y, color);
         p.side = this.side;
         this.currentParties.push(p);
@@ -97,22 +100,21 @@ class Country {
     }
   }
 
-  render() {
-
-    //rect(this.pos.x,this.pos.y,5)
-    const labelX = this.side === "right" ? windowWidth / 2 + 10 : 10;
-    fill(255);
-    text(this.name, labelX, 20);
-    text(this.election.year, labelX, 40);
-    text(this.election.parties.length, labelX, 60);
-    
-
+  //g for graphics
+  render(g) {
     for (let iter = 0; iter < 5; iter++) {
       this.updateCountryParties();
     }
     for (const p of this.currentParties) {
       p.update();
-      p.render();
+      p.render(g);
+      
+    }
+  }
+
+  renderLabels(){
+    for (const p of this.currentParties){
+      p.renderLabels();
     }
   }
 }

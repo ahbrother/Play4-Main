@@ -18,8 +18,10 @@
     <script>
       const DATA_URL = "data/EuropaCMP.json";
 
+      const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
       const params = {
-        server: "http://localhost:8080",
+        server: isLocal ? "http://localhost:8080" : window.location.origin,
         status: "⬤ disconnected",
         country: "Sweden",
         country2: "Switzerland",

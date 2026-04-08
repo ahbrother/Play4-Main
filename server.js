@@ -2,20 +2,33 @@
 // Install: npm install
 // Run:     node server.js
 
+// server.js — Socket.io relay + static file server
+const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
 
 const PORT = process.env.PORT || 8080;
 
-const httpServer = createServer();
+const app = express();
+
+// Serve all files from the current directory (flat structure)
+app.use(express.static(__dirname));
+
+// Explicit fallback for root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: "*" } // allow any origin (iPad, laptop, Render)
+  cors: { origin: "*" },
 });
 
 io.on("connection", (socket) => {
-  console.log(`[+] connected  (total: ${io.engine.clientsCount})`);
+  console.log(`[+] connected (total: ${io.engine.clientsCount})`);
 
-  // relay every event to all OTHER clients — generic, no hardcoding of keys
+  // Relay every event to all other clients
   socket.onAny((event, value) => {
     socket.broadcast.emit(event, value);
   });
@@ -26,6 +39,5 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`\n✅ Socket.io relay running on port ${PORT}`);
-  console.log(`   Find your local IP: ipconfig getifaddr en0  (Mac)`);
+  console.log(`✅ Socket.io relay + static server running on port ${PORT}`);
 });
