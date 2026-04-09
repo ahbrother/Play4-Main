@@ -235,10 +235,10 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
   const current = validValues[i];
   const next = validValues[i + 1];
 
-  // ❗ STOP: nichts zeichnen, wenn wir über das selectedYear hinausgehen
+  // nichts zeichnen, wenn wir über das selectedYear hinausgehen
   if (current.year > selectedYear) break;
 
-  // ❗ OPTIONAL: Linie abschneiden, wenn sie über das selectedYear hinausgeht
+  // Linie abschneiden, wenn sie über das selectedYear hinausgeht
   if (next.year > selectedYear) {
     const t = (selectedYear - current.year) / (next.year - current.year);
 
@@ -348,8 +348,8 @@ function drawFocusFadeOverlay(xStart, xEnd, yTop, yBottom) {
 function drawSelectedYearLine(xStart, xEnd, yTop, yBottom) {
   const x = map(selectedYear, minYear, maxYear, xStart, xEnd, true);
   //rote linie, damit sie sich von den anderen linien abhebt
-  stroke(220, 0, 0);
-  strokeWeight(3);
+  stroke(225);
+  strokeWeight(5);
   line(x, yTop, x, yBottom);
 }
 
@@ -358,9 +358,10 @@ function drawSelectedYearLabel(xStart, xEnd, yTop) {
 
   noStroke();
   //rote beschriftung für jahreszahl
-  fill(220, 0, 0);
+  fill(225);
   textAlign(CENTER, BOTTOM);
-  textSize(34);
+  textStyle(BOLD);
+  textSize(20);
   text(selectedYear, x, yTop - 8);
 }
 

@@ -126,12 +126,14 @@ function draw() {
   // LEGENDE
   // Country Name
   fill(255);
-  textSize(20);
+  textSize(20); //siehe BIP.js: function drawSelectedYearLabel
+  textStyle(BOLD);
   textAlign(LEFT, CENTER);
   text(params.country,10,30)
 
   // Partei-Infos
   fill(255);
+  textStyle(NORMAL);
   selectedCountry?.legendeBeschriftung();
 
 

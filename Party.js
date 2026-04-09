@@ -190,14 +190,16 @@ class Party {
     // noFill();
     // bezier(this.labelCenter.x - 10, this.labelCenter.y - 10,this.labelCenter.x, this.labelCenter.y, this.labelPos.x, this.labelPos.y+8, this.labelPos.x - 10, this.labelPos.y - 10)
 
+    textSize(15); // muss hierhin, damit sich w nicht verändern kann
     let s = this.data.partyname;
     let w = textWidth(s);
+    //viereck hinter der Schrift
     fill(0, 180);
     rectMode(CENTER, CENTER);
-    rect(this.labelCenter.x, this.labelCenter.y, w, 20);
+    rect(this.labelCenter.x, this.labelCenter.y, w + 10, 20);
+    //schriftzug
     fill("#ffffff");
     textAlign(CENTER);
-    textSize(15);
     noStroke();
     text(this.data.partyname, this.labelCenter.x, this.labelCenter.y);
   }
