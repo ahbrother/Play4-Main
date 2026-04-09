@@ -48,7 +48,8 @@ function preload() {
 
 function setup() {
   //1920 * 2, 1080 * 2 : 3820, 2160
-  createCanvas(1920, 1080);
+  // wir setzten es jetzt mal auf (hoffentlich) doppelte beamerauflösung in der x achse
+  createCanvas(1920, 2160);
   pg = createGraphics(width, height);
   gui
     .add(
@@ -91,9 +92,9 @@ function draw() {
  
 
 
-  pg.fill(0, 3);
+  pg.fill(0, 4);
   pg.noStroke();
-  pg.rect(0, 0, width, height - 500);
+  pg.rect(0, 0, width, height);
 
   selectedCountry?.render(pg);
   /******* Need to clear the background, whenever a different country is selected?! */
@@ -107,10 +108,9 @@ function draw() {
 
   selectedCountry?.renderLabels();
 
+
   /***************************  BIP*****************/
-  noStroke();
-  fill(0);
-  rect(0, height - 400, width, 500);
+
   const chartWidth = width - CHART_LINKSRECHTS_MARGIN * 2;
   const chartLeft = (width - chartWidth) / 2;
   const chartRight = chartLeft + chartWidth;
@@ -123,10 +123,17 @@ function draw() {
   drawSelectedYearLine(chartLeft, chartRight, chartTop, chartBottom);
   drawSelectedYearLabel(chartLeft, chartRight, chartTop);
 
-   fill(255,0,0);
+  // LEGENDE
+  // Country Name
+  fill(255);
   textSize(20);
-  textAlign(CENTER, CENTER);
-  text(params.country,40,20)
+  textAlign(LEFT, CENTER);
+  text(params.country,10,30)
+
+  // Partei-Infos
+  fill(255);
+  selectedCountry?.legendeBeschriftung();
+
 
 }
 

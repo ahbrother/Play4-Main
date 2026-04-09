@@ -19,7 +19,7 @@ const BIP_AXIS_MAX = 150000;
 const CHART_OBENUNTEN_MARGIN = 25;
 const CHART_LINKSRECHTS_MARGIN = 120;
 //vier länder davor hell anzeigen, danach dunkel ausfaden
-const FOCUS_WINDOW_BEFORE = 10;
+const FOCUS_WINDOW_BEFORE = 5;
 //kein land danach hell anzeigen
 const FOCUS_WINDOW_AFTER = 0;
 const FOCUS_FADE_MAX_ALPHA = 255;
@@ -199,27 +199,30 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
     return;
   }
   //filtert ungültige datenpunkte heraus und sortiert sie nach jahr
-  const validValues = country.values
-  .map((entry) => ({
-    year: Number(entry.Year),
-    bip: Number(entry.BIP),
-  }))
-  .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip) && entry.year <= selectedYear) // ← nur bis selectedYear
-  .sort((a, b) => a.year - b.year);
+  //CLAUDE
 //   const validValues = country.values
-//     .map((entry) => ({
-//       year: Number(entry.Year),
-//       bip: Number(entry.BIP),
-//     }))
-//     .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip))
-//     .sort((a, b) => a.year - b.year);
+//   .map((entry) => ({
+//     year: Number(entry.Year),
+//     bip: Number(entry.BIP),
+//   }))
+//   .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip) && entry.year <= selectedYear) // ← nur bis selectedYear
+//   .sort((a, b) => a.year - b.year);
 
-//   if (validValues.length === 0) {
-//     return;
-//   }
+
+  const validValues = country.values
+    .map((entry) => ({
+      year: Number(entry.Year),
+      bip: Number(entry.BIP),
+    }))
+    .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip))
+    .sort((a, b) => a.year - b.year);
+
+  if (validValues.length === 0) {
+    return;
+  }
 
   const windowStartYear = selectedYear - FOCUS_WINDOW_BEFORE;
-  const windowEndYear = selectedYear + FOCUS_WINDOW_AFTER;
+  const windowEndYear = selectedYear + FOCUS_WINDOW_AFTER ;
 
   //zeichnet die linien zwischen den datenpunkten
   //die linien sind etwas dicker und weiss, damit sie sich von den punkten abheben
@@ -229,19 +232,57 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
   strokeJoin(MITER);
   strokeCap(SQUARE);
   for (let i = 0; i < validValues.length - 1; i++) {
-    const current = validValues[i];
-    const next = validValues[i + 1];
+  const current = validValues[i];
+  const next = validValues[i + 1];
+
+  // ❗ STOP: nichts zeichnen, wenn wir über das selectedYear hinausgehen
+  if (current.year > selectedYear) break;
+
+  // ❗ OPTIONAL: Linie abschneiden, wenn sie über das selectedYear hinausgeht
+  if (next.year > selectedYear) {
+    const t = (selectedYear - current.year) / (next.year - current.year);
+
     const currentX = map(current.year, minYear, maxYear, xStart, xEnd, true);
     const currentY = map(current.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+
     const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
     const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
-    const midYear = (current.year + next.year) * 0.5;
-    const alpha = getLineChartAlpha(midYear, windowStartYear, windowEndYear);
 
+    // 👉 interpolierter Punkt genau beim selectedYear
+    const cutX = lerp(currentX, nextX, t);
+    const cutY = lerp(currentY, nextY, t);
+
+    stroke(255);
     strokeWeight(6);
-    stroke(255, alpha);
-    line(currentX, currentY, nextX, nextY);
+    line(currentX, currentY, cutX, cutY);
+
+    break; // danach nix mehr zeichnen
   }
+
+  // normaler Fall (komplett innerhalb der Vergangenheit)
+  const currentX = map(current.year, minYear, maxYear, xStart, xEnd, true);
+  const currentY = map(current.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+  const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
+  const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+
+  stroke(255);
+  strokeWeight(6);
+  line(currentX, currentY, nextX, nextY);
+}
+//   for (let i = 0; i < validValues.length - 1; i++) {
+//     const current = validValues[i];
+//     const next = validValues[i + 1];
+//     const currentX = map(current.year, minYear, maxYear, xStart, xEnd, true);
+//     const currentY = map(current.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+//     const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
+//     const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
+//     const midYear = (current.year + next.year) * 0.5;
+//     const alpha = getLineChartAlpha(midYear, windowStartYear, windowEndYear);
+
+//     strokeWeight(6);
+//     stroke(255, alpha);
+//     line(currentX, currentY, nextX, nextY);
+//   }
 
   noStroke();
   fill(0);
@@ -327,6 +368,16 @@ function drawSelectedYearLabel(xStart, xEnd, yTop) {
 function formatBIPValue(value) {
   const roundedToThousand = round(value / 1000) * 1000;
   return nfc(roundedToThousand, 0);
+}
+
+function getFadeAlpha(year) {
+  const distance = selectedYear - year;
+
+  // Zukunft komplett ausblenden
+  if (distance < 0) return 0;
+
+  const t = constrain(distance / FOCUS_WINDOW_BEFORE, 0, 1);
+  return lerp(255, 0, t);
 }
 
 //wenn das fenster grösser oder kleiner wird, wird die grösse der canvas angepasst

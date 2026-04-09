@@ -25,27 +25,28 @@ class Country {
     console.log("ELection:", this.election);
     this.selectedYear = year;
     this._setElection(this.election.parties);
-    //console.log("einzelne Parteien:", this.election.parties)
+    console.log("einzelne Parteien:", this.election.parties)
   }
 
   // change year triggers _setElection
   _setElection(ps) {
     // remove parties that no longer exist
     this.currentParties = this.currentParties.filter((p) =>
-      ps.some((pd) => pd.partyname === p.data.partyname),
+      ps.some((pd) => pd.partyname === p.data.partyname && pd.absseat > 0),
     );
     //console.log("currentParties", this.currentParties);
 
-    // brauchen wir um später abzufragen ob das Land rechts oder links ist
-    const isRight = this.side === "right";
+  
     // update existing, add new
     ps.forEach((pd, i) => {
-
+      if(pd.absseat === 0) return;
+      
       const x = map(pd.rile, -100, 100, 0, width);
-      const y = map(pd.absseat, 0, pd.totseats / 6 * 5, windowHeight-400,0);
+      const y = map(pd.absseat, 0, pd.totseats / 6 * 5, height-450,0);
+      constrain(y, 0, height-450); //not quite sure if that works lol
       
       const existing = this.currentParties.find(
-        (p) => p.data.partyname === pd.partyname,
+        (p) => p.data.partyname === pd.partyname && pd.absseat > 0,
       );
       if (existing) {
         existing.data = pd;
@@ -57,9 +58,52 @@ class Country {
         let p = new Party(pd, x, y, color);
         p.side = this.side;
         this.currentParties.push(p);
+        console.log("Aktuelle Parteien:",this.currentParties)
       }
     });
   }
+
+legendeBeschriftung(){
+  if (!this.currentParties || !this.currentParties.length) return;
+       //console.log("AKtuelle Parteien:", this.election.parties[0].partyname)
+        let x = 100;
+        let y = 25;
+        for (let i = 0; i < this.currentParties.length; i ++){
+        let name = this.currentParties[i].data.partyname ?? "NaN";
+        let abkr = this.currentParties[i].data.partyabbrev ?? "NaN";
+        let seats = this.currentParties[i].data.absseat ?? "0";
+          console.log("currentParties:", this.currentParties);
+  console.log("erstes Element:", this.currentParties[0]);
+
+        let step = 2;
+        if (i % step == 0){
+          x = 200;
+        } else {
+          x = width/2;
+        }
+
+        fill(255)
+        textAlign(LEFT, CENTER);
+        textSize(10);
+        //text(abkr, x,y)
+        text(name, x ,y);
+
+        textAlign(RIGHT,CENTER);
+        text(seats, x + 700, y);
+
+        stroke(255);
+        strokeWeight(1)
+        line(x,y + 5,x + 700, y+5);
+        noStroke();
+        
+        // nur jede zweite iteration
+          if (i % step == step - 1) {
+          y += 15;
+  }
+        //console.log("PARTEISITZE",this.election.parties[i].absseat)
+       }       
+}
+
 
   updateCountryParties() {
     // hier wollen wir die Positionen der Sitze Vergleichen und sichergehen, dass sich die einzelnen Parteien nicht überlappen
@@ -93,7 +137,6 @@ class Country {
     for (const p of this.currentParties) {
       p.update();
       p.render(g);
-      
     }
   }
 
