@@ -66,8 +66,8 @@ class Country {
 legendeBeschriftung(){
   if (!this.currentParties || !this.currentParties.length) return;
        //console.log("AKtuelle Parteien:", this.election.parties[0].partyname)
-        let x = 100;
-        let y = 25;
+        let x = 50;
+        let y = 55;
         for (let i = 0; i < this.currentParties.length; i ++){
         let name = this.currentParties[i].data.partyname ?? "NaN";
         let abkr = this.currentParties[i].data.partyabbrev ?? "NaN";
@@ -77,7 +77,7 @@ legendeBeschriftung(){
 
         let step = 2;
         if (i % step == 0){
-          x = 200;
+          x = 120;
         } else {
           x = width/2;
         }
@@ -89,11 +89,12 @@ legendeBeschriftung(){
         text(name, x ,y);
 
         textAlign(RIGHT,CENTER);
-        text(seats, x + 700, y);
+        text(seats, x + 820, y);
 
+        //TRENNLINIE
         stroke(255);
         strokeWeight(1)
-        line(x,y + 5,x + 700, y+5);
+        line(x,y + 5,x + 820, y+5);
         noStroke();
         
         // nur jede zweite iteration

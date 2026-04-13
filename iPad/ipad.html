@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iPad Projekt</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <section class="country-row" aria-label="Länderliste">
+        <div class="country-item" data-emit="country" data-value="Albania">Albanien</div>
+        <div class="country-item" data-emit="country" data-value="Andorra">Andorra</div>
+        <div class="country-item" data-emit="country" data-value="Belgium">Belgien</div>
+        <div class="country-item" data-emit="country" data-value="Bosnia and Herzegovina">Bosnien und Herzegowina</div>
+        <div class="country-item" data-emit="country" data-value="Bulgaria">Bulgarien</div>
+        <div class="country-item" data-emit="country" data-value="Denmark">Dänemark</div>
+        <div class="country-item" data-emit="country" data-value="Germany">Deutschland</div>
+        <div class="country-item" data-emit="country" data-value="Estonia">Estland</div>
+        <div class="country-item" data-emit="country" data-value="Finland">Finnland</div>
+        <div class="country-item" data-emit="country" data-value="France">Frankreich</div>
+        <div class="country-item" data-emit="country" data-value="Greece">Griechenland</div>
+      </section>
+
+      <section class="country-row country-row-right" aria-label="Länderliste 2">
+        <div class="country-item" data-emit="country" data-value="Ireland">Irland</div>
+        <div class="country-item" data-emit="country" data-value="Iceland">Island</div>
+        <div class="country-item" data-emit="country" data-value="Italy">Italien</div>
+        <div class="country-item" data-emit="country" data-value="Croatia">Kroatien</div>
+        <div class="country-item" data-emit="country" data-value="Latvia">Lettland</div>
+        <div class="country-item" data-emit="country" data-value="Liechtenstein">Liechtenstein</div>
+        <div class="country-item" data-emit="country" data-value="Lithuania">Litauen</div>
+        <div class="country-item" data-emit="country" data-value="Luxembourg">Luxemburg</div>
+        <div class="country-item" data-emit="country" data-value="Malta">Malta</div>
+        <div class="country-item" data-emit="country" data-value="Moldova">Moldawien</div>
+        <div class="country-item" data-emit="country" data-value="Monaco">Monaco</div>
+      </section>
+
+      <section class="country-row country-row-third" aria-label="Länderliste 3">
+        <div class="country-item" data-emit="country" data-value="Montenegro">Montenegro</div>
+        <div class="country-item" data-emit="country" data-value="Netherlands">Niederlande</div>
+        <div class="country-item" data-emit="country" data-value="North Macedonia">Nordmazedonien</div>
+        <div class="country-item" data-emit="country" data-value="Norway">Norwegen</div>
+        <div class="country-item" data-emit="country" data-value="Austria">Österreich</div>
+        <div class="country-item" data-emit="country" data-value="Poland">Polen</div>
+        <div class="country-item" data-emit="country" data-value="Portugal">Portugal</div>
+        <div class="country-item" data-emit="country" data-value="Romania">Rumänien</div>
+        <div class="country-item" data-emit="country" data-value="Russia">Russland</div>
+        <div class="country-item" data-emit="country" data-value="Sweden">Schweden</div>
+        <div class="country-item" data-emit="country" data-value="Switzerland">Schweiz</div>
+      </section>
+
+      <section class="country-row country-row-fourth" aria-label="Länderliste 4">
+        <div class="country-item" data-emit="country" data-value="Serbia">Serbien</div>
+        <div class="country-item" data-emit="country" data-value="Slovakia">Slowakei</div>
+        <div class="country-item" data-emit="country" data-value="Slovenia">Slowenien</div>
+        <div class="country-item" data-emit="country" data-value="Spain">Spanien</div>
+        <div class="country-item" data-emit="country" data-value="Czech Republic">Tschechien</div>
+        <div class="country-item" data-emit="country" data-value="Turkey">Türkei</div>
+        <div class="country-item" data-emit="country" data-value="Ukraine">Ukraine</div>
+        <div class="country-item" data-emit="country" data-value="Hungary">Ungarn</div>
+        <div class="country-item" data-emit="country" data-value="United Kingdom">Vereinigtes Königreich</div>
+        <div class="country-item" data-emit="country" data-value="Cyprus">Zypern</div>
+      </section>
+
+      <section class="country-row party-row" aria-label="Parteienliste">
+        <div class="country-item">Ecological parties</div>
+        <div class="country-item">Socialist or other left parties</div>
+        <div class="country-item">Social democratic parties</div>
+        <div class="country-item">Liberal parties</div>
+        <div class="country-item">Christian democratic parties</div>
+        <div class="country-item">Conservative parties</div>
+      </section>
+
+      <section class="country-row party-row-right" aria-label="Parteienliste 2">
+        <div class="country-item">Nationalist and radical right parties</div>
+        <div class="country-item">Agrarian parties</div>
+        <div class="country-item">Ethnic and regional parties</div>
+        <div class="country-item">Special issue parties</div>
+        <div class="country-item">Electoral alliances of diverse origin without dominant party</div>
+        <div class="country-item">Missing information</div>
+      </section>
+    </main>
+
+    <script>
+      const isLocal =
+        ["localhost", "127.0.0.1"].includes(window.location.hostname) ||
+        window.location.protocol === "file:";
+      const SERVER_URL = isLocal ? "http://localhost:8080" : window.location.origin;
+
+      let socket = null;
+      if (typeof io === "function") {
+        try {
+          socket = io(SERVER_URL, {
+            autoConnect: true,
+            transports: ["websocket", "polling"],
+          });
+        } catch (error) {
+          console.warn("Socket connection init failed:", error);
+        }
+      }
+
+      const clickableCountryItems = document.querySelectorAll(".country-item[data-emit]");
+
+      const clearActiveCountrySelection = () => {
+        clickableCountryItems.forEach((item) => item.classList.remove("active"));
+      };
+
+      document.addEventListener("click", (event) => {
+        const clickedCountry = event.target.closest(".country-item[data-emit]");
+        if (!clickedCountry) {
+          clearActiveCountrySelection();
+          return;
+        }
+
+        const eventName = clickedCountry.dataset.emit;
+        const value = clickedCountry.dataset.value;
+        if (socket) {
+          socket.emit(eventName, value);
+        }
+
+        // Keep exactly one active country at a time.
+        clearActiveCountrySelection();
+        clickedCountry.classList.add("active");
+      });
+    </script>
+  </body>
+</html>

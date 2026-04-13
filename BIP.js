@@ -144,8 +144,6 @@ function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
     strokeWeight(1);
     line(xStart, y, xEnd, y);
 
-    stroke(255);
-    strokeWeight(1);
     line(xStart, y, xStart + 7, y);
 
     noStroke();
@@ -153,6 +151,7 @@ function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
     textAlign(RIGHT, CENTER);
     textSize(12);
     text(formatBIPValue(categoryValue), xStart - 12, y);
+    console.log("xStart:", xStart) //120
   }
 
   noStroke();
@@ -181,8 +180,6 @@ function drawTimeline(xStart, xEnd, yTop, yBottom) {
     strokeWeight(1);
     line(x, yTop, x, yBottom);
 
-    stroke(255);
-    strokeWeight(1);
     line(x, yBottom - 9, x, yBottom);
   }
 }
@@ -226,7 +223,7 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
 
   //zeichnet die linien zwischen den datenpunkten
   //die linien sind etwas dicker und weiss, damit sie sich von den punkten abheben
-  stroke(0);
+  stroke(255);
   strokeWeight(1.5);
   //linien waren rund, so sind die eckiger wie im figma entwurf
   strokeJoin(MITER);
@@ -285,7 +282,7 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
 //   }
 
   noStroke();
-  fill(0);
+  fill(255);
 
   //zeichnet die datenpunkte als kleine kreise
   for (const entry of validValues) {
@@ -348,7 +345,7 @@ function drawFocusFadeOverlay(xStart, xEnd, yTop, yBottom) {
 function drawSelectedYearLine(xStart, xEnd, yTop, yBottom) {
   const x = map(selectedYear, minYear, maxYear, xStart, xEnd, true);
   //rote linie, damit sie sich von den anderen linien abhebt
-  stroke(225);
+  stroke(255);
   strokeWeight(5);
   line(x, yTop, x, yBottom);
 }
@@ -358,7 +355,7 @@ function drawSelectedYearLabel(xStart, xEnd, yTop) {
 
   noStroke();
   //rote beschriftung für jahreszahl
-  fill(225);
+  fill(255);
   textAlign(CENTER, BOTTOM);
   textStyle(BOLD);
   textSize(20);
