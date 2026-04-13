@@ -129,7 +129,7 @@ function draw() {
   textSize(20); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
-  text(params.country,10,30)
+  text(params.country,20,30)
 
   // Partei-Infos
   fill(255);

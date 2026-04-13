@@ -151,7 +151,7 @@ function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
     textAlign(RIGHT, CENTER);
     textSize(12);
     text(formatBIPValue(categoryValue), xStart - 12, y);
-    console.log("xStart:", xStart) //120
+    //console.log("xStart:", xStart) //120
   }
 
   noStroke();
