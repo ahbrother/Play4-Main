@@ -9,7 +9,7 @@ let familycolors = {
   30: "#B0001F",
   40: "#00A3E1",
   50: "#FF7E00",
-  60: "#FFF359",
+  60: "#E7DB36",
   70: "#FFC800",
   80: "#098C00",
   90: "#AF78D3",
@@ -141,6 +141,7 @@ function draw() {
 
 function connectGUI() {
   //  const socket = io(SERVER_URL, { transports: ["websocket"] });
+  //https://giansocket.onrender.com/gui.html  das zeigt zumindest das gui controllfeld an, gesteuert wird aber nichts
 
   const socket = io(SERVER_URL);
 
