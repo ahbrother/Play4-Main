@@ -89,7 +89,7 @@ class Country {
       textAlign(LEFT, CENTER);
       textSize(20);
       //text(abkr, x,y)
-      text(name, x, y);
+      text(truncateToWidth(name,800),x, y);
 
       textAlign(RIGHT, CENTER);
       text(seats, x + 810, y);
@@ -99,6 +99,8 @@ class Country {
       strokeWeight(1.5);
       line(x, y + 15, x + 810, y + 15); // chli meh platz
       noStroke();
+
+      //////text(truncateToWidth(params.country, 800), 60, 30);
 
       // nur jede zweite iteration
       if (i % step == step - 1) {
@@ -149,6 +151,15 @@ class Country {
     }
   }
 }
+
+function truncateToWidth(str, maxWidth, ellipsis = "...") {
+  let truncated = str;
+  while (textWidth(truncated + ellipsis) > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated.length < str.length ? truncated + ellipsis : str;
+}
+
 
 /*
 Hier generieren wir die entsprechenden Partikelsysteme.
