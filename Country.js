@@ -80,7 +80,7 @@ class Country {
 
       let step = 2;
       if (i % step == 0) {
-        x = 120;
+        x = 60;
       } else {
         x = width / 2 + 60;
       }
@@ -92,17 +92,17 @@ class Country {
       text(name, x, y);
 
       textAlign(RIGHT, CENTER);
-      text(seats, x + 820, y);
+      text(seats, x + 800, y);
 
       //TRENNLINIE
       stroke(255);
       strokeWeight(1.5);
-      line(x, y + 10, x + 820, y + 10);
+      line(x, y + 15, x + 800, y + 15); // chli meh platz
       noStroke();
 
       // nur jede zweite iteration
       if (i % step == step - 1) {
-        y += 25;
+        y += 30;
       }
       //console.log("PARTEISITZE",this.election.parties[i].absseat)
     }

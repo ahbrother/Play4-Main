@@ -125,11 +125,23 @@ function draw() {
   textSize(30); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
-  text(params.country,20,30)
+  text(truncateToWidth(params.country, 300), 60, 30);
+  textAlign(RIGHT, CENTER);
+  text("GDP per Capita in USD", width-120, height - 400);
 
   // Partei-Infos
   fill(255);
-  textStyle(NORMAL);
+    textStyle(NORMAL);
+  textSize(20)
+  //textStyle(ITALIC);
+  text("Seats in Parlament", 860, 30);
+  text("Seats in Parlament", width - 100, 30);
+  textAlign(LEFT, CENTER);
+  text("Left", 120, height- 450);
+  textAlign(RIGHT,CENTER);
+  text("Right", width-120, height- 450);
+  
+
   selectedCountry?.legendeBeschriftung();
 
 
@@ -182,3 +194,12 @@ function setCountry2(v) {
   selectedCountry2.setPosition(createVector((width / 4) * 3, height / 2));
   selectedCountry2.setYear(params.year);
 }
+
+function truncateToWidth(str, maxWidth, ellipsis = "...") {
+  let truncated = str;
+  while (textWidth(truncated + ellipsis) > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated.length < str.length ? truncated + ellipsis : str;
+}
+
