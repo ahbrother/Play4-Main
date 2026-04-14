@@ -149,7 +149,7 @@ function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
     noStroke();
     fill(255);
     textAlign(RIGHT, CENTER);
-    textSize(12);
+    textSize(20);
     text(formatBIPValue(categoryValue), xStart - 12, y);
     //console.log("xStart:", xStart) //120
   }
@@ -157,7 +157,7 @@ function drawBIPCategories(xStart, xEnd, yTop, yBottom) {
   noStroke();
   fill(30);
   textAlign(CENTER, CENTER);
-  textSize(12);
+  textSize(20);
 }
 
 //zeichnet die vertikalen linien für die jahreszahlen
@@ -358,7 +358,7 @@ function drawSelectedYearLabel(xStart, xEnd, yTop) {
   fill(255);
   textAlign(CENTER, BOTTOM);
   textStyle(BOLD);
-  textSize(20);
+  textSize(30);
   text(selectedYear, x, yTop - 8);
 }
 

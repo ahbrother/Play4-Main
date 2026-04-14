@@ -82,12 +82,12 @@ class Country {
       if (i % step == 0) {
         x = 120;
       } else {
-        x = width / 2;
+        x = width / 2 + 120;
       }
 
       fill(255);
       textAlign(LEFT, CENTER);
-      textSize(10);
+      textSize(20);
       //text(abkr, x,y)
       text(name, x, y);
 
@@ -96,13 +96,13 @@ class Country {
 
       //TRENNLINIE
       stroke(255);
-      strokeWeight(1);
-      line(x, y + 5, x + 820, y + 5);
+      strokeWeight(1.5);
+      line(x, y + 10, x + 820, y + 10);
       noStroke();
 
       // nur jede zweite iteration
       if (i % step == step - 1) {
-        y += 15;
+        y += 25;
       }
       //console.log("PARTEISITZE",this.election.parties[i].absseat)
     }
