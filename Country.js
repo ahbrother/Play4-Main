@@ -80,7 +80,7 @@ class Country {
 
       let step = 2;
       if (i % step == 0) {
-        x = 60;
+        x = 120;
       } else {
         x = width / 2 + 60;
       }
@@ -89,7 +89,7 @@ class Country {
       textAlign(LEFT, CENTER);
       textSize(20);
       //text(abkr, x,y)
-      text(truncateToWidth(name,800),x, y);
+      text(truncateToWidth(name,790),x, y);
 
       textAlign(RIGHT, CENTER);
       text(seats, x + 810, y);
