@@ -185,13 +185,13 @@ class Party {
     this.updateLabel();
 
 
-    textSize(15); // muss hierhin, damit sich w nicht verändern kann
+    textSize(20); // muss hierhin, damit sich w nicht verändern kann
     let s = this.data.partyname;
     let w = textWidth(s);
     //viereck hinter der Schrift
     fill(0,180);
     rectMode(CENTER, CENTER);
-    rect(this.labelCenter.x, this.labelCenter.y, w + 10, 20);
+    rect(this.labelCenter.x, this.labelCenter.y, w + 10, 25);
     //schriftzug
     fill("#ffffff");
     textAlign(CENTER);

@@ -130,13 +130,15 @@
         clearInterval(autoplayInterval);
         autoplayInterval = null;
         // button anpassen
-        autoplayBtn.textContent = "▶";
+        // autoplayBtn.textContent = "▶";
+         autoplayBtn.textContent = "\u25B6\uFE0E";
         autoplayBtn.classList.remove("active");
       };
 
       const startAutoplay = () => {
         // pause symbol einsetzen
-        autoplayBtn.textContent = "⏸";
+        // autoplayBtn.textContent = "⏸";
+        autoplayBtn.textContent = "\u23F8\uFE0E";
         // aktiv hinzufügen falls ihr im css aktiv haben wollt
         autoplayBtn.classList.add("active");
         // intervall starten

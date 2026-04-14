@@ -92,7 +92,7 @@ function draw() {
  
 
 
-  pg.fill(0, 4);
+  pg.fill(0, 8);
   pg.noStroke();
   pg.rect(0, 0, width, height);
 
