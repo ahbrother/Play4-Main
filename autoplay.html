@@ -35,11 +35,9 @@
         <div class="country-item" data-emit="country" data-value="Malta">Malta</div>
         <div class="country-item" data-emit="country" data-value="Moldova">Moldawien</div>
         <div class="country-item" data-emit="country" data-value="Montenegro">Montenegro</div>
-        <!-- <div class="country-item" data-emit="country" data-value="Monaco">Monaco</div> -->
       </section>
 
       <section class="country-row country-row-third" aria-label="Länderliste 3">
-       
         <div class="country-item" data-emit="country" data-value="Netherlands">Niederlande</div>
         <div class="country-item" data-emit="country" data-value="North Macedonia">Nordmazedonien</div>
         <div class="country-item" data-emit="country" data-value="Norway">Norwegen</div>
@@ -54,7 +52,6 @@
       </section>
 
       <section class="country-row country-row-fourth" aria-label="Länderliste 4">
-    
         <div class="country-item" data-emit="country" data-value="Slovakia">Slowakei</div>
         <div class="country-item" data-emit="country" data-value="Slovenia">Slowenien</div>
         <div class="country-item" data-emit="country" data-value="Spain">Spanien</div>
@@ -70,32 +67,31 @@
       <button class="autoplay-btn" id="autoplayBtn" aria-label="Autoplay starten">&#9654;</button>
 
       <section class="timeline-row" aria-label="Zeitleiste">
-        <input class="timeline-slider" type="range" min="1960" max="2024" step="1" value="1968" />
-        <!-- Aktuelles jahr. ev noch besser platzieren?-->
-        <span class="timeline-year" id="yearDisplay">1968</span>
+        <input class="timeline-slider" type="range" min="1960" max="2024" step="1" value="1960" />
 
         <div class="timeline-labels">
-          <span>1968</span>
+          <span>1960</span>
+          <span class="timeline-year" id="yearDisplay">1960</span>
           <span>2024</span>
         </div>
       </section>
 
       <section class="country-row party-row" aria-label="Parteienliste">
-        <div class="country-item">Ecological parties</div>
-        <div class="country-item">Socialist or other left parties</div>
-        <div class="country-item">Social democratic parties</div>
-        <div class="country-item">Liberal parties</div>
-        <div class="country-item">Christian democratic parties</div>
-        <div class="country-item">Conservative parties</div>
+        <div class="country-item">Ökologische Parteien</div>
+        <div class="country-item">Sozialistische oder andere linke Parteien</div>
+        <div class="country-item">Sozialdemokratische Parteien</div>
+        <div class="country-item">Liberale Parteien</div>
+        <div class="country-item">Christlich-Demokratische Parteien</div>
+        <div class="country-item">Konservative Parteien</div>
       </section>
 
       <section class="country-row party-row-right" aria-label="Parteienliste 2">
-        <div class="country-item">Nationalist and radical right parties</div>
-        <div class="country-item">Agrarian parties</div>
-        <div class="country-item">Ethnic and regional parties</div>
-        <div class="country-item">Special issue parties</div>
-        <div class="country-item">Electoral alliances of diverse origin without dominant party</div>
-        <div class="country-item">Missing information</div>
+        <div class="country-item">Nationalistische und radikale Rechte Parteien</div>
+        <div class="country-item">Agrarparteien</div>
+        <div class="country-item">Ethnische und regionale Parteien</div>
+        <div class="country-item">Spezial-Parteien</div>
+        <div class="country-item">Wahlbündnisse unterschiedlicher Herkunft ohne dominierende Partei</div>
+        <div class="country-item">Fehlende Informationen</div>
       </section>
     </main>
 
@@ -128,7 +124,7 @@
       // "timer" das intervall in dem autoplay 1 jahr weiter geht.
       // setInterval=in welchem abstand wird automatisch aufgerufen
       let autoplayInterval = null;
-      let autoplayDuration = 1000; // intervall abstand
+      let autoplayDuration = 3000; // intervall abstand
 
       const stopAutoplay = () => {
         clearInterval(autoplayInterval);
@@ -148,9 +144,10 @@
           // pro intervall wird diese funktion ausgeführt
           const current = parseInt(slider.value, 10);
           const max = parseInt(slider.max, 10);
-          // stoppen wenn am ende. müsst ev überlegen ob hier an den anfang zurück und weiterlaufen oder wie jetzt im Moment stoppen
+          // bei max wieder am anfang starten und weiterlaufen
           if (current >= max) {
-            stopAutoplay();
+            slider.value = slider.min;
+            slider.dispatchEvent(new Event("input"));
             return;
           }
           // jahr hochzählen
@@ -169,6 +166,7 @@
           // Reset to start if at end
           if (parseInt(slider.value, 10) >= parseInt(slider.max, 10)) {
             slider.value = slider.min;
+            slider.dispatchEvent(new Event("input"));
           }
           startAutoplay();
         }
