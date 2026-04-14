@@ -70,7 +70,7 @@ class Country {
     if (!this.currentParties || !this.currentParties.length) return;
     //console.log("AKtuelle Parteien:", this.election.parties[0].partyname)
     let x = 50;
-    let y = 55;
+    let y = 70;
     for (let i = 0; i < this.currentParties.length; i++) {
       let name = this.currentParties[i].data.partyname ?? "NaN";
       let abkr = this.currentParties[i].data.partyabbrev ?? "NaN";
@@ -82,7 +82,7 @@ class Country {
       if (i % step == 0) {
         x = 120;
       } else {
-        x = width / 2 + 120;
+        x = width / 2 + 60;
       }
 
       fill(255);

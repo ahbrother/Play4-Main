@@ -184,11 +184,6 @@ class Party {
   renderLabels() {
     this.updateLabel();
 
-    // linie vom Zentrum der Sitze zu dem Label
-    // stroke(255,120);
-    // strokeWeight(2);
-    // noFill();
-    // bezier(this.labelCenter.x - 10, this.labelCenter.y - 10,this.labelCenter.x, this.labelCenter.y, this.labelPos.x, this.labelPos.y+8, this.labelPos.x - 10, this.labelPos.y - 10)
 
     textSize(15); // muss hierhin, damit sich w nicht verändern kann
     let s = this.data.partyname;

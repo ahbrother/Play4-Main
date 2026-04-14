@@ -30,7 +30,7 @@ const params = {
   year: 1960,
   forceDivide: 22.3,
 };
-gui = new lil.GUI();
+//gui = new lil.GUI();
 
 //const SERVER_URL = "http://localhost:8080"; // ← swap to your Render URL for production
 
@@ -51,15 +51,15 @@ function setup() {
   // wir setzten es jetzt mal auf (hoffentlich) doppelte beamerauflösung in der x achse
   createCanvas(1920, 2160);
   pg = createGraphics(width, height);
-  gui
-    .add(
-      params,
-      "country",
-      countries.map((c) => c.name),
-    )
-    .onChange(setCountry);
+  // gui
+  //   .add(
+  //     params,
+  //     "country",
+  //     countries.map((c) => c.name),
+  //   )
+  //   .onChange(setCountry);
 
-  gui.add(params, "year", 1960, 2024, 1).onChange(setYear);
+  // gui.add(params, "year", 1960, 2024, 1).onChange(setYear);
 
   // set initial country and year
   selectedCountry = countries.find((c) => c.name === params.country);
@@ -72,8 +72,8 @@ function setup() {
 
   selectedCountry.setYear(params.year);
   //selectedCountry2.setYear(params.year);
-  const folder = gui.addFolder("Forces");
-  folder.add(params, "forceDivide", 0, 50, 0.1);
+  // const folder = gui.addFolder("Forces");
+  // folder.add(params, "forceDivide", 0, 50, 0.1);
 
   //console.log("LINKERBIP:",currentBipLeft)
 
@@ -102,10 +102,6 @@ function draw() {
   background(0);
   image(pg, 0, 0, width, height);
 
-  // noStroke();
-  // fill(255);
-  // rect(0,height-500, width, 500)
-
   selectedCountry?.renderLabels();
 
 
@@ -126,7 +122,7 @@ function draw() {
   // LEGENDE
   // Country Name
   fill(255);
-  textSize(20); //siehe BIP.js: function drawSelectedYearLabel
+  textSize(30); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
   text(params.country,20,30)
