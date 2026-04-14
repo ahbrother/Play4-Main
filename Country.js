@@ -92,17 +92,17 @@ class Country {
       text(name, x, y);
 
       textAlign(RIGHT, CENTER);
-      text(seats, x + 800, y);
+      text(seats, x + 810, y);
 
       //TRENNLINIE
       stroke(255);
       strokeWeight(1.5);
-      line(x, y + 15, x + 800, y + 15); // chli meh platz
+      line(x, y + 15, x + 810, y + 15); // chli meh platz
       noStroke();
 
       // nur jede zweite iteration
       if (i % step == step - 1) {
-        y += 30;
+        y += 35;
       }
       //console.log("PARTEISITZE",this.election.parties[i].absseat)
     }

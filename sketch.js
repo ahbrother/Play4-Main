@@ -125,9 +125,9 @@ function draw() {
   textSize(30); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
-  text(truncateToWidth(params.country, 300), 60, 30);
+  text(truncateToWidth(params.country, 50), 60, 30);
   textAlign(RIGHT, CENTER);
-  text("GDP per Capita in USD", width-120, height - 400);
+  text("GDP per capita in USD", width-120, height - 400);
 
   // Partei-Infos
   fill(255);
@@ -137,9 +137,9 @@ function draw() {
   text("Seats in Parlament", 860, 30);
   text("Seats in Parlament", width - 100, 30);
   textAlign(LEFT, CENTER);
-  text("Left", 120, height- 450);
+  text("Left", 120, height- 425);
   textAlign(RIGHT,CENTER);
-  text("Right", width-120, height- 450);
+  text("Right", width-120, height- 425);
   
 
   selectedCountry?.legendeBeschriftung();
