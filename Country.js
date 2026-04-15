@@ -79,7 +79,7 @@ class Country {
 
       let step = 2;
       if (i % step == 0) {
-        x = 80;
+        x = 90;
       } else {
         x = width / 2 + 60;
       }
