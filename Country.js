@@ -73,14 +73,14 @@ class Country {
     let y = 70;
     for (let i = 0; i < this.currentParties.length; i++) {
       let name = this.currentParties[i].data.partyname ?? "NaN";
-      let abkr = this.currentParties[i].data.partyabbrev ?? "NaN";
+      // let abkr = this.currentParties[i].data.partyabbrev ?? "NaN";
       let seats = this.currentParties[i].data.absseat ?? "0";
       // console.log("currentParties:", this.currentParties);
       //console.log("erstes Element:", this.currentParties[0]);
 
       let step = 2;
       if (i % step == 0) {
-        x = 120;
+        x = 110;
       } else {
         x = width / 2 + 60;
       }
@@ -100,9 +100,7 @@ class Country {
       line(x, y + 15, x + 810, y + 15); // chli meh platz
       noStroke();
 
-      //////text(truncateToWidth(params.country, 800), 60, 30);
-
-      // nur jede zweite iteration
+      // nur jede zweite iteration == gleichmässiges layout
       if (i % step == step - 1) {
         y += 35;
       }

@@ -81,6 +81,77 @@ body {
 	outline-offset: 3px;
 }
 
+.info-btn {
+	grid-column: 4;
+	grid-row: 5;
+	justify-self: end;
+	align-self: end;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 8px;
+	width: 126px;
+	padding: 8px 14px;
+	background: #000;
+	color: #fff;
+	border: 2px solid #fff;
+	border-radius: 0;
+	text-decoration: none;
+	font: inherit;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.info-page {
+	grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+
+.info-page-content {
+	grid-column: 1 / -1;
+	grid-row: 1 / 5;
+	width: min(720px, 100%);
+	display: grid;
+	align-content: start;
+	gap: 18px;
+	padding: 12px 8px 0;
+}
+
+.info-page-content h1 {
+	margin: 0 0 10px;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.2;
+	text-transform: uppercase;
+}
+
+.info-page-content p {
+	margin: 0;
+	font-size: inherit;
+	line-height: 1.5;
+}
+
+.info-back-btn {
+	grid-column: 4;
+	grid-row: 5;
+	justify-self: end;
+	align-self: end;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin: 8px;
+	width: 126px;
+	padding: 8px 14px;
+	background: #000;
+	color: #fff;
+	border: 2px solid #fff;
+	border-radius: 0;
+	text-decoration: none;
+	font: inherit;
+	line-height: 1;
+	cursor: pointer;
+}
+
 .timeline-row {
 	grid-column: 1 / -1;
 	grid-row: 4;
@@ -259,7 +330,7 @@ body {
 }
 
 .country-item.active {
-	font-weight: 800;
+	font-weight: 700;
 	letter-spacing: 0.6px;
 }
 
@@ -271,4 +342,48 @@ body {
 	bottom: 4px;
 	border-bottom: 1px solid #fff;
 
+}
+
+.info-footer {
+	grid-column: 1;
+	grid-row: 5;
+	align-self: end;
+	justify-content: flex-start;
+}
+
+.info-footer .country-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-bottom: 0;
+}
+
+.info-footer .country-item::before {
+	display: none;
+}
+
+.info-footer .country-item::after {
+	display: none;
+}
+
+.info-footer-right {
+	grid-column: 2;
+	grid-row: 5;
+	align-self: end;
+	justify-content: flex-start;
+}
+
+.info-footer-right .country-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-bottom: 0;
+}
+
+.info-footer-right .country-item::before {
+	display: none;
+}
+
+.info-footer-right .country-item::after {
+	display: none;
 }
