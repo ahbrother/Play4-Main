@@ -122,7 +122,7 @@ function draw() {
   textSize(30); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
-  text(params.country, 100, 30);
+  text(params.country, 80, 30);
   textAlign(RIGHT, CENTER);
   text("GDP per capita in USD", width-120, height - 400);
 
@@ -130,7 +130,7 @@ function draw() {
   fill(255);
   textStyle(NORMAL);
   textSize(20);
-  text("Seats in Parliament", width/2 - 30, 30);
+  text("Seats in Parliament", width/2 - 50, 30);
   text("Seats in Parliament", width - 90 , 30);
 
   textAlign(LEFT, CENTER);
