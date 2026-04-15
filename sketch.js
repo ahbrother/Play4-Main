@@ -130,7 +130,7 @@ function draw() {
   fill(255);
   textStyle(NORMAL);
   textSize(20);
-  text("Seats in Parliament", width/2 - 50, 30);
+  text("Seats in Parliament", width/2 - 55, 30);
   text("Seats in Parliament", width - 90 , 30);
 
   textAlign(LEFT, CENTER);
