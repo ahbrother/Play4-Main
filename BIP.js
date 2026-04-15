@@ -195,16 +195,6 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
   if (!country || !Array.isArray(country.values)) {
     return;
   }
-  //filtert ungültige datenpunkte heraus und sortiert sie nach jahr
-  //CLAUDE
-//   const validValues = country.values
-//   .map((entry) => ({
-//     year: Number(entry.Year),
-//     bip: Number(entry.BIP),
-//   }))
-//   .filter((entry) => Number.isFinite(entry.year) && Number.isFinite(entry.bip) && entry.year <= selectedYear) // ← nur bis selectedYear
-//   .sort((a, b) => a.year - b.year);
-
 
   const validValues = country.values
     .map((entry) => ({
@@ -245,7 +235,7 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
     const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
     const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
 
-    // 👉 interpolierter Punkt genau beim selectedYear
+    //Punkt genau beim selectedYear
     const cutX = lerp(currentX, nextX, t);
     const cutY = lerp(currentY, nextY, t);
 
@@ -266,20 +256,7 @@ function drawCountryPoints(xStart, xEnd, yTop, yBottom) {
   strokeWeight(6);
   line(currentX, currentY, nextX, nextY);
 }
-//   for (let i = 0; i < validValues.length - 1; i++) {
-//     const current = validValues[i];
-//     const next = validValues[i + 1];
-//     const currentX = map(current.year, minYear, maxYear, xStart, xEnd, true);
-//     const currentY = map(current.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
-//     const nextX = map(next.year, minYear, maxYear, xStart, xEnd, true);
-//     const nextY = map(next.bip, BIP_AXIS_MIN, BIP_AXIS_MAX, yBottom, yTop, true);
-//     const midYear = (current.year + next.year) * 0.5;
-//     const alpha = getLineChartAlpha(midYear, windowStartYear, windowEndYear);
 
-//     strokeWeight(6);
-//     stroke(255, alpha);
-//     line(currentX, currentY, nextX, nextY);
-//   }
 
   noStroke();
   fill(255);
@@ -378,15 +355,4 @@ function getFadeAlpha(year) {
   return lerp(255, 0, t);
 }
 
-//wenn das fenster grösser oder kleiner wird, wird die grösse der canvas angepasst
-// function windowResized() {
-//   resizeCanvas(windowWidth*2, 420);
-//   if (countrySelect) {
-//     countrySelect.position(20, 20);
-//   }
-//   if (yearSlider) {
-//     yearSlider.position(30, 52);
-//   }
-//   redraw();
-// }
 

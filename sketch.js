@@ -25,8 +25,8 @@ let countries = [];
 let selectedCountry;
 let selectedCountry2;
 const params = {
-  country: "Sweden",
-  country2: "Switzerland",
+  country: "Switzerland",
+  //country2: "Switzerland",
   year: 1960,
   forceDivide: 22.3,
 };
@@ -58,7 +58,6 @@ function setup() {
   //     countries.map((c) => c.name),
   //   )
   //   .onChange(setCountry);
-
   // gui.add(params, "year", 1960, 2024, 1).onChange(setYear);
 
   // set initial country and year
@@ -90,8 +89,6 @@ function setup() {
 
 function draw() {
  
-
-
   pg.fill(0, 8);
   pg.noStroke();
   pg.rect(0, 0, width, height);
@@ -105,13 +102,13 @@ function draw() {
   selectedCountry?.renderLabels();
 
 
-  /***************************  BIP*****************/
+  /***************************  BIP  *****************/
 
   const chartWidth = width - CHART_LINKSRECHTS_MARGIN * 2;
   const chartLeft = (width - chartWidth) / 2;
   const chartRight = chartLeft + chartWidth;
   const chartBottom = height - CHART_OBENUNTEN_MARGIN;
-  const chartTop = chartBottom - 320; // ← fixe Höhe von 420px
+  const chartTop = chartBottom - 320;
 
   drawBIPCategories(chartLeft, chartRight, chartTop, chartBottom);
   drawTimeline(chartLeft, chartRight, chartTop, chartBottom);
@@ -125,7 +122,7 @@ function draw() {
   textSize(30); //siehe BIP.js: function drawSelectedYearLabel
   textStyle(BOLD);
   textAlign(LEFT, CENTER);
-  text(params.country, 110, 30);
+  text(params.country, 100, 30);
   textAlign(RIGHT, CENTER);
   text("GDP per capita in USD", width-120, height - 400);
 

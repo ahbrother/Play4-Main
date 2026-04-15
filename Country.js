@@ -9,7 +9,7 @@ class Country {
       parties: d.parties,
     }));
     this.election = this.elections[0];
-    this.currentParties = []; // ← add this
+    this.currentParties = []; // current parties at the moment
   }
 
   setPosition(position) {
@@ -40,7 +40,6 @@ class Country {
     // update existing, add new
     ps.forEach((pd, i) => {
       console.log(pd.absseat);
-      // if (pd.absseat === 0) return;
 
       if (pd.absseat != null && pd.absseat != 0) {
         const x = map(pd.rile, -100, 100, 0, width);
@@ -80,7 +79,7 @@ class Country {
 
       let step = 2;
       if (i % step == 0) {
-        x = 110;
+        x = 100;
       } else {
         x = width / 2 + 60;
       }
@@ -157,9 +156,3 @@ function truncateToWidth(str, maxWidth, ellipsis = "...") {
   }
   return truncated.length < str.length ? truncated + ellipsis : str;
 }
-
-
-/*
-Hier generieren wir die entsprechenden Partikelsysteme.
-Anzahl Sitze = Anzahl Rechtecke
-*/

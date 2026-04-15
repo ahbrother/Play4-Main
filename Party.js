@@ -18,7 +18,6 @@ class Party {
     ); // Startposition
     this.labelVel = createVector(0, 0);
     this.labelCenter = createVector(width / 2, height / 2);
-    //this.labelAngle = -HALF_PI + random(-10, 10); // Einstellen wie fest die labels nach links und rechts dürfen
     //console.log("Sitze", this.seats)
   }
 
@@ -59,9 +58,6 @@ class Party {
     center.div(this.seats.length);
     this.labelCenter = center;
 
-    // 2. Anziehung zum Ankerpunkt (etwas ausserhalb des Schwerpunkts)
-    let canvasCenter = createVector(width / 2, height / 2);
-    //let dir = p5.Vector.add(center, canvasCenter);
     let dir = p5.Vector.fromAngle(this.labelAngle);
     //dir.normalize();
     dir.mult(map(this.seats.length, 0, 200, 20, 220)); //abstand vom mittelpunkt, evt mappen?
@@ -97,8 +93,6 @@ class Party {
     // update the position. ensures, here we can edit how smooth the movement is
     if (this.attractor) {
       let force = p5.Vector.sub(this.attractor, this.pos);
-      //let mappedForce = map(this.seats.length, 1, 200, 20, 900)
-      //force.div(mappedForce);
       force.div(10);
       this.vel.add(force);
     }
@@ -115,7 +109,6 @@ class Party {
       let distForce = force.mag();
       let strength = map(distForce, 0, 200, 0.001, 0.03);
       force.setMag(strength * distForce);
-      //force.div(params.forceDivide); // oder force.limit(x)
 
       let groupForce = p5.Vector.sub(this.pos, seat.pos);
       groupForce.setMag(3.5); //fixxe geschwindigkeit der ganzen Partei zum Zielort
@@ -123,7 +116,6 @@ class Party {
       seat.vel.add(force);
       seat.vel.add(groupForce);
       seat.vel.mult(0.3); // seat.vel.limit(maxspeed)
-      // seat.vel.limit(1.5);
       seat.pos.add(seat.vel);
 
       const xMin = 0;
@@ -204,11 +196,3 @@ class Party {
   }
 }
 
-/*
-Auf der höheren Ebene Wählen wir das Land und das Jahr. Das heisst, hier brauchen wir die Anzahl und Namen der Einzelnen Parteien in diesem Land zu dem Zeitpunkt.
-Evt kommt hier später noch Force etc dazu.
-
-Dazu brauchen wir:
-– ein Array mit allen aktuellen Parteinamen (plus evt anzahl sitze und rile-wert für force?)
-
-*/
