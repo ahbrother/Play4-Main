@@ -1,6 +1,8 @@
 let dataset;
-let minYear = 1960;
-let maxYear = 2024;
+const TIMELINE_MIN_YEAR = 1960;
+const TIMELINE_MAX_YEAR = 2024;
+let minYear = TIMELINE_MIN_YEAR;
+let maxYear = TIMELINE_MAX_YEAR;
 let dataYears = [];
 let windowWidth = 1200;
 let minBIP = 0;
@@ -35,8 +37,6 @@ function calculateDataRanges() {
   //lokale variablen, um die min/max werte zu berechnen
   //Infinity und -Infinity als startwerte
   //damit jede gültige zahl diese überschreibt
-  let localYearMin = Infinity;
-  let localYearMax = -Infinity;
   let localBIPMin = Infinity;
   let localBIPMax = -Infinity;
   const yearsSet = new Set();
@@ -56,8 +56,6 @@ function calculateDataRanges() {
       //jahreszahlen können auch null oder keine zahl sein
       //nur gültige jahreszahlen berücksichtigen
       if (Number.isFinite(year)) {
-        localYearMin = min(localYearMin, year);
-        localYearMax = max(localYearMax, year);
         yearsSet.add(floor(year));
       }
 
@@ -70,11 +68,9 @@ function calculateDataRanges() {
     }
   }
 
-  //wenn güötige jahreszahlen gefunden werden, dann werden sie als min/max jahre gesetzt
-  if (Number.isFinite(localYearMin) && Number.isFinite(localYearMax)) {
-    minYear = floor(localYearMin);
-    maxYear = ceil(localYearMax);
-  }
+  //die zeitachse bleibt fix auf 1960-2024, damit jeder kalenderjahr-schritt gleich gross ist
+  minYear = TIMELINE_MIN_YEAR;
+  maxYear = TIMELINE_MAX_YEAR;
 
   //wenn gültige bip-werte gefunden werden, dann werden sie als min/max bip gesetzt
   if (Number.isFinite(localBIPMin) && Number.isFinite(localBIPMax)) {
@@ -83,7 +79,7 @@ function calculateDataRanges() {
   }
 
   dataYears = Array.from(yearsSet).sort((a, b) => a - b);
-  selectedYear = minYear;
+  selectedYear = constrain(selectedYear, minYear, maxYear);
  //erstellt eine sortiere liste der länder
   const sortedCountries = [...dataset.countries]
     .filter((country) => typeof country.country === "string")
@@ -166,15 +162,9 @@ function drawTimeline(xStart, xEnd, yTop, yBottom) {
   strokeWeight(0.5);
   line(xStart, yBottom, xEnd, yBottom);
 
-  if (dataYears.length === 0) {
-    return;
-  }
-
-  //verteilt die jahreszahlen gleichmässig über die breite des diagramms
-  for (let i = 0; i < dataYears.length; i++) {
-    const x = dataYears.length === 1
-      ? (xStart + xEnd) / 2
-      : map(i, 0, dataYears.length - 1, xStart, xEnd);
+  //zeichnet die vertikalen linien in fixen kalenderjahr-schritten
+  for (let year = minYear; year <= maxYear; year++) {
+    const x = map(year, minYear, maxYear, xStart, xEnd, true);
 
     stroke(255);
     strokeWeight(1);

@@ -176,10 +176,11 @@ function setCountry(v) {
 }
 
 function setYear(v) {
-  params.year = v;
-  selectedCountry?.setYear(v);
-  selectedCountry2?.setYear(v);
-  selectedYear = v;
+  const year = constrain(round(Number(v)), 1960, 2024);
+  params.year = year;
+  selectedCountry?.setYear(year);
+  selectedCountry2?.setYear(year);
+  selectedYear = year;
   // selectedCountry?.setPosition(createVector(width / 4, height / 2));
   // selectedCountry2?.setPosition(createVector((width / 4) * 3, height / 2));
 }
